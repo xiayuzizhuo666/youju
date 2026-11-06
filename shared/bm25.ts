@@ -1,5 +1,5 @@
-import type { BookEntry } from "./types";
-import { tokenize } from "./tokenize";
+import type { BookEntry } from "./types.ts";
+import { tokenize } from "./tokenize.ts";
 
 const K1 = 1.5;
 const B = 0.75;

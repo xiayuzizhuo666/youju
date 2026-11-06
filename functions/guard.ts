@@ -1,4 +1,4 @@
-import type { BookEntry } from "../shared/types";
+import type { BookEntry } from "../shared/types.ts";
 
 const EMERGENCY =
   /倒地|没有呼吸|大出血|火灾|着火|起火|溺水|触电|中毒|卒中|中风|心梗|胸痛|窒息|昏迷|晕倒|休克|呼吸困难|抽搐|烧伤|烫伤|车祸|误吞|吞了药/;
@@ -48,6 +48,8 @@ export function unsupportedClaims(text: string, entries: BookEntry[]): string[] 
   const corpus = entries
     .map((entry) =>
       [
+        entry.id,
+        String(entry.section_no),
         entry.title,
         entry.cost_text,
         entry.plain,
@@ -61,9 +63,9 @@ export function unsupportedClaims(text: string, entries: BookEntry[]): string[] 
         entry.benefit.level,
         entry.benefit.metric,
         entry.population.join(" "),
-      ].join("\n"),
+      ].join("|"),
     )
-    .join("\n")
+    .join("|")
     .replace(/\s+/g, "");
   // Law references are reported in their original wording (whitespace runs collapsed),
   // and their spans are removed before the number scan so an article is not reported twice.
