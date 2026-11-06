@@ -27,7 +27,7 @@
       "vite/client"
     ]
   },
-  "include": ["src", "components", "data", "hooks", "lib", "shared", "vite.config.ts"],
+  "include": ["src", "components", "pages", "data", "hooks", "lib", "shared", "vite.config.ts"],
   "exclude": [
     "node_modules",
     "dist",
