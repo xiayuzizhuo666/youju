@@ -1,7 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { BookData, BookEntry, SignPayload } from "../shared/types.ts";
-import { buildIndex, search } from "../shared/bm25.ts";
 import { normalizeQuestion } from "../shared/normalize.ts";
 import { hasAbsoluteClaim, hasVerdict } from "../functions/guard.ts";
 
@@ -21,10 +20,11 @@ function citationFor(entry: BookEntry): string {
   return `第 ${entry.section_no} 节第 ${entry.item_no} 条（${entry.title}）`;
 }
 
-function signFromEntry(entry: BookEntry, question: string): SignPayload {
+function signFromEntry(entry: BookEntry): SignPayload {
   const raw = entry.title;
-  const text = raw.length <= 24 && !hasVerdict(raw) && !hasAbsoluteClaim(raw)
-    ? raw
+  const candidate = raw.length <= 24 ? raw : raw.slice(0, 24);
+  const text = !hasVerdict(candidate) && !hasAbsoluteClaim(candidate)
+    ? candidate
     : `先看第 ${entry.section_no} 节第 ${entry.item_no} 条`;
   return {
     entry_id: entry.id,
@@ -40,7 +40,7 @@ function signFromEntry(entry: BookEntry, question: string): SignPayload {
 }
 
 function isDailyCandidate(entry: BookEntry): boolean {
-  return entry.evidence === "A" && entry.benefit.level === "大" && entry.cost.money !== "多";
+  return !entry.dispute && entry.evidence === "A" && entry.benefit.level === "大" && entry.cost.money !== "多";
 }
 
 export function buildDailySigns(book: BookData, days: number): DailySign[] {
@@ -51,42 +51,42 @@ export function buildDailySigns(book: BookData, days: number): DailySign[] {
     const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date(start + index * 86_400_000));
     const entry = pool[index % pool.length];
     const question = DAILY_QUESTIONS[index % DAILY_QUESTIONS.length];
-    return { date, question, sign: signFromEntry(entry, question) };
+    return { date, question, sign: signFromEntry(entry) };
   });
 }
 
-export function buildCuratedCache(book: BookData, questions: string[]): Record<string, SignPayload> {
-  const index = buildIndex(book.entries);
+export function buildCuratedCacheFromMap(
+  book: BookData,
+  specs: { question: string; entryId: string }[],
+): Record<string, SignPayload> {
   const byId = new Map(book.entries.map((entry) => [entry.id, entry]));
   const cache: Record<string, SignPayload> = {};
-  for (const question of questions) {
-    const top = search(index, question, 1)[0];
-    // No token overlap (e.g. a zero-hit synthetic question) still gets a
-    // deterministic, book-backed sign so every curated key is populated.
-    const entry = top ? byId.get(top.id) : book.entries[0];
-    if (entry) cache[normalizeQuestion(question)] = signFromEntry(entry, question);
+  for (const spec of specs) {
+    const entry = byId.get(spec.entryId);
+    if (!entry) throw new Error(`curated entry not found: ${spec.entryId}`);
+    cache[normalizeQuestion(spec.question)] = signFromEntry(entry);
   }
   return cache;
 }
 
-const CURATED_QUESTIONS = [
-  "房东不退押金怎么办",
-  "被裁了第一步做什么",
-  "朋友让我替他担保签不签",
-  "体检发现结节要不要手术",
-  "熬夜怎么补救",
-  "结婚划不划算",
-  "遇到电信诈骗怎么办",
-  "试用期被辞退有补偿吗",
-  "医保断缴有什么影响",
-  "出国旅行要准备什么",
+const CURATED = [
+  { question: "房东不退押金怎么办", entryId: "15-1" },
+  { question: "被裁了第一步做什么", entryId: "19-4" },
+  { question: "朋友让我替他担保签不签", entryId: "8-18" },
+  { question: "体检发现结节要不要手术", entryId: "6-20" },
+  { question: "熬夜怎么补救", entryId: "3-2" },
+  { question: "结婚划不划算", entryId: "10-9" },
+  { question: "遇到电信诈骗怎么办", entryId: "8-2" },
+  { question: "试用期被辞退有补偿吗", entryId: "19-5" },
+  { question: "医保断缴有什么影响", entryId: "7-18" },
+  { question: "出国旅行要准备什么", entryId: "21-4" },
 ];
 
 if (process.argv[1] && process.argv[1].endsWith("precompute.ts")) {
   const root = resolve(import.meta.dirname, "..");
   const book = JSON.parse(readFileSync(join(root, "data", "book.json"), "utf8")) as BookData;
   const daily = buildDailySigns(book, 365);
-  const curated = buildCuratedCache(book, CURATED_QUESTIONS);
+  const curated = buildCuratedCacheFromMap(book, CURATED);
   mkdirSync(join(root, "functions", "data"), { recursive: true });
   writeFileSync(join(root, "data", "daily-signs.json"), JSON.stringify(daily, null, 2));
   writeFileSync(join(root, "functions", "data", "daily-signs.json"), JSON.stringify(daily, null, 2));

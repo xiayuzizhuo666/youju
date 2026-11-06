@@ -1,30 +1,27 @@
 {
   "房东不退押金怎么办": {
-    "entry_id": "12-27",
-    "text": "先看第 12 节第 27 条",
-    "plain": "把住宅改成店，要同一栋楼的其他业主全都同意，别的楼能证明受影响的业主也算。邻居告你恢复原状、赔钱，法院会支持。住宅楼和没专用烟道的商住楼，都不许新开有油烟的餐馆，查到了先叫你改。不改就关店，罚 1 万到 10 万元，装修钱和押金可能就这么搭进去。",
+    "entry_id": "15-1",
+    "text": "租房时押金的数额、退还时间和扣减情形，必须写进合",
+    "plain": "押金多少、什么时候退、什么情况下能扣，签字前就要写进合同。合同里没写的情形，房东没有正当理由，退租时就不能扣你的押金。",
     "cost": {
       "money": "0",
-      "time": "中",
-      "will": "否"
+      "time": "少",
+      "will": "些"
     },
     "benefit": {
-      "level": "大",
+      "level": "中",
       "metric": "金钱"
     },
     "evidence": "A",
-    "citation": "第 12 节第 27 条（租铺面开店，签约前先查这间房能不能开你的店：住宅改成店要同一栋楼的业主全都同意，住宅楼里不能新开有油烟的餐馆）",
-    "source_text": "全国人大 (2020). 民法典（第二百七十九、七百二十四条）. <https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml>；最高人民法院 (2020 修正). 关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释（第十、十一条）. <https://flk.npc.gov.cn/detail?id=ff808181799df6140179b092ef2d2af9>（国家法律法规数据库）；全国人大 (2026). 生态环境法典（第二百五十、一千一百三十二、一千二百四十二条，2026 年 8 月 15 日起施行）. <https://flk.npc.gov.cn/detail?id=96630961659b4d87a65b7b1c595097fa>（国家法律法规数据库）；市场监管总局 (2023). 食品经营许可和备案管理办法（市场监管总局令第 78 号，第十二条）. <https://www.gov.cn/gongbao/2023/issue_10606/202307/content_6894763.html>",
+    "citation": "第 15 节第 1 条（租房时押金的数额、退还时间和扣减情形，必须写进合同）",
+    "source_text": "国务院 (2025). 住房租赁条例（国令第 812 号，2025 年 9 月 15 日施行）（第十条）. <https://www.gov.cn/zhengce/zhengceku/202507/content_7032956.htm>",
     "source_links": [
-      "https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml",
-      "https://flk.npc.gov.cn/detail?id=ff808181799df6140179b092ef2d2af9",
-      "https://flk.npc.gov.cn/detail?id=96630961659b4d87a65b7b1c595097fa",
-      "https://www.gov.cn/gongbao/2023/issue_10606/202307/content_6894763.html"
+      "https://www.gov.cn/zhengce/zhengceku/202507/content_7032956.htm"
     ]
   },
   "被裁了第一步做什么": {
     "entry_id": "19-4",
-    "text": "先看第 19 节第 4 条",
+    "text": "被裁先算清 N：每满一年一个月工资，不满六个月按",
     "plain": "被裁时公司要给的经济补偿这样算：干满一年给一个月工资，满半年不满一年按一年算，不满半年给半个月。这里的月工资是走人前 12 个月的平均数，奖金、津贴、补贴都要算进去。工资高过当地上年度月平均工资 3 倍的按 3 倍封顶，年限最多算 12 年。",
     "cost": {
       "money": "0",
@@ -43,29 +40,9 @@
     ]
   },
   "朋友让我替他担保签不签": {
-    "entry_id": "8-17",
-    "text": "签字前把纸看完，不替人签字，不在空白纸上签",
-    "plain": "签了就算数，按手印和签名一样算数。「没看清」「以为是别的」在法庭上很难成立。所以多花几分钟从头读到尾，看不懂的当场问，拍照留底。不替别人签，不在空白纸上签，身份证复印件写清用途。",
-    "cost": {
-      "money": "0",
-      "time": "少",
-      "will": "些"
-    },
-    "benefit": {
-      "level": "大",
-      "metric": "金钱"
-    },
-    "evidence": "A",
-    "citation": "第 8 节第 17 条（签字前把纸看完，不替人签字，不在空白纸上签）",
-    "source_text": "全国人大 (2020). 民法典（第四百六十五、四百九十、五百零九条）. <https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml>",
-    "source_links": [
-      "https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml"
-    ]
-  },
-  "体检发现结节要不要手术": {
-    "entry_id": "23-10",
-    "text": "先看第 23 节第 10 条",
-    "plain": "按美国的估算，约 47% 的岗位有较高风险被计算机接手，后来按具体任务估的比例低得多。机器难过的坎有三样：手上的灵巧劲、想出新东西、跟人打交道。所以要到现场、环境不标准、得临场判断的活更难被顶掉，流程固定、主要处理信息的岗位风险最高。",
+    "entry_id": "8-18",
+    "text": "借钱写清借条，替人担保前先想清楚自己愿不愿意替他",
+    "plain": "借条要写全：出借人、借款人、金额、利率、期限、还款方式，双方签名。钱走转账，不给现金，写全了才好起诉。替人担保时看清有没有「连带」两个字。一般保证要等债主执行不到借款人的钱才轮到你，连带的可以直接找你要。",
     "cost": {
       "money": "0",
       "time": "少",
@@ -75,11 +52,40 @@
       "level": "大",
       "metric": "金钱"
     },
-    "evidence": "B",
-    "citation": "第 23 节第 10 条（挑技能时优先看「要不要动手、要不要现场判断」，这类最难被自动化顶掉）",
-    "source_text": "Frey CB, Osborne MA (2017). The future of employment: how susceptible are jobs to computerisation? Technological Forecasting and Social Change, 114, 254-280. <https://doi.org/10.1016/j.techfore.2016.08.019>",
+    "evidence": "A",
+    "citation": "第 8 节第 18 条（借钱写清借条，替人担保前先想清楚自己愿不愿意替他还）",
+    "source_text": "全国人大 (2020). 民法典（第六百六十八、六百八十一、六百八十六、六百八十七条）. <https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml>",
     "source_links": [
-      "https://doi.org/10.1016/j.techfore.2016.08.019"
+      "https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml"
+    ]
+  },
+  "体检发现结节要不要手术": {
+    "entry_id": "6-20",
+    "text": "不要因为体检查出胆囊结石、但从没疼过，就去预防性",
+    "plain": "胆囊里有石头、但从没疼过的人，近九年里约八成一直没出症状。不动它，每年出胆囊炎、胰腺炎这类急症的约千分之一到千分之三。切胆囊也不是零风险，约 1.5% 的人胆管会被伤到。所以欧洲和英国的指南都说，没症状先不切。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "死亡率"
+    },
+    "evidence": "A",
+    "citation": "第 6 节第 20 条（不要因为体检查出胆囊结石、但从没疼过，就去预防性切胆囊）",
+    "source_text": "Festi D, Reggiani ML, Attili AF, et al. (2010). Natural history of gallstone disease: Expectant management or active treatment? Results from a population-based cohort study. Journal of Gastroenterology and Hepatology, 25(4), 719-724. <https://doi.org/10.1111/j.1440-1746.2009.06146.x>；McSherry CK, Ferstenberg H, Calhoun WF, Lahman E, Virshup M (1985). The natural history of diagnosed gallstone disease in symptomatic and asymptomatic patients. Annals of Surgery, 202(1), 59-63. <https://doi.org/10.1097/00000658-198507000-00009>；National Institute for Health and Care Excellence (2014). Gallstone disease: diagnosis and management. NICE guideline CG188，第 1.2.1、1.3.1 条. <https://www.nice.org.uk/guidance/cg188/chapter/Recommendations>；European Association for the Study of the Liver (2016). EASL Clinical Practice Guidelines on the prevention, diagnosis and treatment of gallstones. Journal of Hepatology, 65(1), 146-181. <https://doi.org/10.1016/j.jhep.2016.03.005>；Törnqvist B, Strömberg C, Persson G, Nilsson M (2012). Effect of intended intraoperative cholangiography and early detection of bile duct injury on survival after cholecystectomy: population based cohort study. BMJ, 345, e6457. <https://doi.org/10.1136/bmj.e6457>；Ransohoff DF, Gracie WA, Wolfenson LB, Neuhauser D (1983). Prophylactic cholecystectomy or expectant management for silent gallstones. A decision analysis to assess survival. Annals of Internal Medicine, 99(2), 199-204. <https://doi.org/10.7326/0003-4819-99-2-199>；Gurusamy KS, Samraj K (2007). Cholecystectomy versus no cholecystectomy in patients with silent gallstones. Cochrane Database of Systematic Reviews, CD006230. <https://doi.org/10.1002/14651858.CD006230.pub2>；反方：Venneman NG, Buskens E, Besselink MG, et al. (2005). Small gallstones are associated with increased risk of acute pancreatitis: potential benefits of prophylactic cholecystectomy? American Journal of Gastroenterology, 100(11), 2540-2550. <https://doi.org/10.1111/j.1572-0241.2005.00317.x>；中华医学会外科学分会胆道外科学组, 中国医师协会外科医师分会胆道外科医师委员会 (2022). 胆囊良性疾病外科治疗的专家共识（2021版）. 中华外科杂志, 60(1), 4-9. <https://doi.org/10.3760/cma.j.cn112139-20210811-00373>（全文需订阅，未取得）；同上 (2022). 《胆囊良性疾病外科治疗的专家共识（2021版）》解读. 中华外科杂志, 60(4), 337-342. <https://doi.org/10.3760/cma.j.cn112139-20220119-00031>",
+    "source_links": [
+      "https://doi.org/10.1111/j.1440-1746.2009.06146.x",
+      "https://doi.org/10.1097/00000658-198507000-00009",
+      "https://www.nice.org.uk/guidance/cg188/chapter/Recommendations",
+      "https://doi.org/10.1016/j.jhep.2016.03.005",
+      "https://doi.org/10.1136/bmj.e6457",
+      "https://doi.org/10.7326/0003-4819-99-2-199",
+      "https://doi.org/10.1002/14651858.CD006230.pub2",
+      "https://doi.org/10.1111/j.1572-0241.2005.00317.x",
+      "https://doi.org/10.3760/cma.j.cn112139-20210811-00373",
+      "https://doi.org/10.3760/cma.j.cn112139-20220119-00031"
     ]
   },
   "熬夜怎么补救": {
@@ -103,48 +109,52 @@
     ]
   },
   "结婚划不划算": {
-    "entry_id": "10-16",
-    "text": "先看第 10 节第 16 条",
-    "plain": "长辈那份收益，也就是安心、面子、不再催，是真的。但它不会自动变成你的健康收益或关系质量。而时间账、钱账和退出成本这三笔，全部由你自己承担。在纸上分两栏，把哪些收益归自己、哪些归长辈写开，这笔账划不划算自己一眼就能看出来。",
+    "entry_id": "10-9",
+    "text": "时间账按「无酬劳动」算，谈清分工再领证",
+    "plain": "全国时间利用调查统计了家务和陪伴照料家人这类没报酬的活。当天做了的人里，男性每天平均 1 小时 52 分，女性 3 小时 29 分。调查没按结没结婚分组，所以「结了婚家务会多多少」没有官方数字，这个性别差距只能当上限参考。分工可以在领证前谈成另一个样子。",
     "cost": {
       "money": "0",
-      "time": "少",
-      "will": "些"
-    },
-    "benefit": {
-      "level": "中",
-      "metric": "时间"
-    },
-    "evidence": "C",
-    "citation": "第 10 节第 16 条（给「为长辈结婚」单独记一笔账，别和自己的账混在一起）",
-    "source_text": "作者经验，方法类建议；数据部分见本节前面各条",
-    "source_links": []
-  },
-  "遇到电信诈骗怎么办": {
-    "entry_id": "21-5",
-    "text": "先看第 21 节第 5 条",
-    "plain": "月薪高得离谱、不问学历经验、不签正规合同、让你先到边境城市集合、还替你保管护照。这种活去了，人和护照都不在自己手上。出境时材料造假，边检会把你拦下不放行。在境外违法犯罪、危害国家安全和利益的，回国之后还可能 6 个月到 3 年不准出境。",
-    "cost": {
-      "money": "0",
-      "time": "少",
+      "time": "中",
       "will": "些"
     },
     "benefit": {
       "level": "大",
-      "metric": "自由"
+      "metric": "时间"
     },
     "evidence": "A",
-    "citation": "第 21 节第 5 条（「境外高薪招聘」一律当诈骗看，被骗去做电诈回来还可能要被限制出境）",
-    "source_text": "国务院 (2026). 关于出境入境管理的规定（国令第 841 号）. <https://www.gov.cn/zhengce/zhengceku/202607/content_7077173.htm>（第三、四条）；司法部、公安部、国家移民局 (2026). 就《国务院关于出境入境管理的规定》答记者问. <https://www.gov.cn/zhengce/202608/content_7077270.htm>",
+    "citation": "第 10 节第 9 条（时间账按「无酬劳动」算，谈清分工再领证）",
+    "source_text": "国家统计局 (2024). 第三次全国时间利用调查公报（第二号、第三号）. <https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957216.html>、<https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957215.html>；国家统计局 (2019). 2018 年全国时间利用调查公报. <https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1900224.html>",
     "source_links": [
-      "https://www.gov.cn/zhengce/zhengceku/202607/content_7077173.htm",
-      "https://www.gov.cn/zhengce/202608/content_7077270.htm"
+      "https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957216.html",
+      "https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957215.html",
+      "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1900224.html"
+    ]
+  },
+  "遇到电信诈骗怎么办": {
+    "entry_id": "8-2",
+    "text": "发现被骗，立刻打 110 或 96110 要求止",
+    "plain": "钱刚转出去的那一小段时间最要紧，警方可以紧急止付、快速冻结，银行必须配合。等钱被转走、分散开，追回的机会就小多了。所以先打 110 或者 96110，别自己先去查、先去问。96110 打进来的是警察在劝阻你，要接。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 8 节第 2 条（发现被骗，立刻打 110 或 96110 要求止付，别先自己查）",
+    "source_text": "全国人大常委会 (2022). 反电信网络诈骗法（第二十、三十四条）. <https://www.spp.gov.cn/spp/fl/202209/t20220902_575631.shtml>；福建省公安厅 (2023). 96110 来电，请务必接听. <http://gat.fujian.gov.cn/ztzl/fjjffpzxrx/spjq/202303/t20230306_6126156.htm>（省级公安机关页面）",
+    "source_links": [
+      "https://www.spp.gov.cn/spp/fl/202209/t20220902_575631.shtml",
+      "http://gat.fujian.gov.cn/ztzl/fjjffpzxrx/spjq/202303/t20230306_6126156.htm"
     ]
   },
   "试用期被辞退有补偿吗": {
-    "entry_id": "19-3",
-    "text": "先看第 19 节第 3 条",
-    "plain": "合同签 3 个月以上不满 1 年的，试用期最多 1 个月。签 1 年以上不满 3 年的最多 2 个月，签 3 年以上的最多 6 个月。同一家公司只能试用你一次，转正后调个岗再来一次是违法的。试用期工资不能低于同岗位最低档或者合同约定工资的 80%，也不能低于当地最低工资。",
+    "entry_id": "19-5",
+    "text": "公司以病后干不了、不胜任或情况大变为由辞退你，没",
+    "plain": "公司因为你病后干不了、干不了工作或者情况大变而辞退你，要提前 30 天书面通知。没通知的，要在 N 之外再多给一个月工资，这就是常说的 N+1。谈的时候把这一个月单独列出来，别让公司把它算进 N 里面。",
     "cost": {
       "money": "0",
       "time": "少",
@@ -155,10 +165,11 @@
       "metric": "金钱"
     },
     "evidence": "A",
-    "citation": "第 19 节第 3 条（试用期有法定上限、工资不得低于 80%，而且只能约定一次）",
-    "source_text": "全国人大常委会 (2007). 劳动合同法（第十九、二十、二十一、八十三条）. <http://www.gov.cn/gongbao/content/2007/content_711013.htm>",
+    "citation": "第 19 节第 5 条（公司以病后干不了、不胜任或情况大变为由辞退你，没提前 30 天通知的，还要多付一个月工资）",
+    "source_text": "全国人大常委会 (2007). 中华人民共和国劳动合同法（2008 年 1 月 1 日施行）（第三十六、三十九、四十、四十一、四十六、四十七、八十七条）. <http://www.gov.cn/gongbao/content/2007/content_711013.htm>；国务院 (2008). 劳动合同法实施条例（国务院令第 535 号）第二十条：「用人单位依照劳动合同法第四十条的规定，选择额外支付劳动者一个月工资解除劳动合同的，其额外支付的工资应当按照该劳动者上一个月的工资标准确定」. <http://www.gov.cn/gongbao/content/2008/content_1107604.htm>",
     "source_links": [
-      "http://www.gov.cn/gongbao/content/2007/content_711013.htm"
+      "http://www.gov.cn/gongbao/content/2007/content_711013.htm",
+      "http://www.gov.cn/gongbao/content/2008/content_1107604.htm"
     ]
   },
   "医保断缴有什么影响": {
@@ -184,26 +195,24 @@
     ]
   },
   "出国旅行要准备什么": {
-    "entry_id": "8-41",
-    "text": "先看第 8 节第 41 条",
-    "plain": "借钱、欠款、赔偿、退款、劳动纠纷，电话里说清楚了却没留下东西，几个月后双方就可能各说一套。你自己参加的谈话可以录下来，没提前告诉对方，不会单凭这一点就不能当证据。不能干的是窃听、偷窥别人隐私、闯进别人家里偷录，或者威胁对方说话。",
+    "entry_id": "21-4",
+    "text": "买一份含境外医疗和医疗转运的保险，别只买航班延误",
+    "plain": "在国外看病的钱要自己掏。国内医保基本不报，使领馆也不垫。真正能拖垮一个家的不是门诊费，是重伤以后的住院，还有把人运回国，那得靠专机或者医疗护送。买旅行险主要看两个额度：境外医疗费用，紧急医疗转运与送返。",
     "cost": {
-      "money": "0",
+      "money": "少",
       "time": "少",
       "will": "否"
     },
     "benefit": {
-      "level": "中",
+      "level": "大",
       "metric": "金钱"
     },
-    "evidence": "A",
-    "citation": "第 8 节第 41 条（可能翻脸的电话和面谈，直接开录音：自己参加的谈话，不用先征得对方同意）",
-    "source_text": "全国人大常委会 (2023 年修正，2024 年 1 月 1 日施行). 民事诉讼法（第六十六条）. 上海市发展和改革委员会转载全文 <https://fgw.sh.gov.cn/ys-syjf-zc-2.4.1-h5/20240408/073febdb2b04464390546232d4089f51.html>；最高人民法院 (2022 年第二次修正). 关于适用《中华人民共和国民事诉讼法》的解释（第一百零六条）. <https://www.court.gov.cn/fabu/xiangqing/353651.html>；最高人民法院 (2019 年修正). 关于民事诉讼证据的若干规定（第十四、十五、九十条）. <https://www.court.gov.cn/zixun/xiangqing/212721.html>；刘丹妮 (2023). 电影《消失的她》中的法律（人民法院报，最高人民法院官网转载）. <https://www.court.gov.cn/zixun/xiangqing/406032.html>",
+    "evidence": "C",
+    "citation": "第 21 节第 4 条（买一份含境外医疗和医疗转运的保险，别只买航班延误险）",
+    "source_text": "国务院 (2023). 领事保护与协助条例（国令第 763 号）. <https://www.gov.cn/zhengce/zhengceku/202307/content_6891761.htm>（第二十六条）；美国疾病控制与预防中心. Travelers' Health: Travel Insurance：「Medical evacuation insurance covers emergency transportation from a remote area to a high-quality hospital, which could otherwise cost more than $100,000.」. <https://wwwnc.cdc.gov/travel/page/insurance>；其余为作者经验，无直接文献",
     "source_links": [
-      "https://fgw.sh.gov.cn/ys-syjf-zc-2.4.1-h5/20240408/073febdb2b04464390546232d4089f51.html",
-      "https://www.court.gov.cn/fabu/xiangqing/353651.html",
-      "https://www.court.gov.cn/zixun/xiangqing/212721.html",
-      "https://www.court.gov.cn/zixun/xiangqing/406032.html"
+      "https://www.gov.cn/zhengce/zhengceku/202307/content_6891761.htm",
+      "https://wwwnc.cdc.gov/travel/page/insurance"
     ]
   }
 }
