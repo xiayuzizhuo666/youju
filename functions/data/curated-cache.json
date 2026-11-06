@@ -1,1 +1,209 @@
-{}
+{
+  "房东不退押金怎么办": {
+    "entry_id": "12-27",
+    "text": "先看第 12 节第 27 条",
+    "plain": "把住宅改成店，要同一栋楼的其他业主全都同意，别的楼能证明受影响的业主也算。邻居告你恢复原状、赔钱，法院会支持。住宅楼和没专用烟道的商住楼，都不许新开有油烟的餐馆，查到了先叫你改。不改就关店，罚 1 万到 10 万元，装修钱和押金可能就这么搭进去。",
+    "cost": {
+      "money": "0",
+      "time": "中",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 12 节第 27 条（租铺面开店，签约前先查这间房能不能开你的店：住宅改成店要同一栋楼的业主全都同意，住宅楼里不能新开有油烟的餐馆）",
+    "source_text": "全国人大 (2020). 民法典（第二百七十九、七百二十四条）. <https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml>；最高人民法院 (2020 修正). 关于审理建筑物区分所有权纠纷案件适用法律若干问题的解释（第十、十一条）. <https://flk.npc.gov.cn/detail?id=ff808181799df6140179b092ef2d2af9>（国家法律法规数据库）；全国人大 (2026). 生态环境法典（第二百五十、一千一百三十二、一千二百四十二条，2026 年 8 月 15 日起施行）. <https://flk.npc.gov.cn/detail?id=96630961659b4d87a65b7b1c595097fa>（国家法律法规数据库）；市场监管总局 (2023). 食品经营许可和备案管理办法（市场监管总局令第 78 号，第十二条）. <https://www.gov.cn/gongbao/2023/issue_10606/202307/content_6894763.html>",
+    "source_links": [
+      "https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml",
+      "https://flk.npc.gov.cn/detail?id=ff808181799df6140179b092ef2d2af9",
+      "https://flk.npc.gov.cn/detail?id=96630961659b4d87a65b7b1c595097fa",
+      "https://www.gov.cn/gongbao/2023/issue_10606/202307/content_6894763.html"
+    ]
+  },
+  "被裁了第一步做什么": {
+    "entry_id": "19-4",
+    "text": "先看第 19 节第 4 条",
+    "plain": "被裁时公司要给的经济补偿这样算：干满一年给一个月工资，满半年不满一年按一年算，不满半年给半个月。这里的月工资是走人前 12 个月的平均数，奖金、津贴、补贴都要算进去。工资高过当地上年度月平均工资 3 倍的按 3 倍封顶，年限最多算 12 年。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 19 节第 4 条（被裁先算清 N：每满一年一个月工资，不满六个月按半个月）",
+    "source_text": "全国人大常委会 (2007). 中华人民共和国劳动合同法（2008 年 1 月 1 日施行）（第四十七条）. <http://www.gov.cn/gongbao/content/2007/content_711013.htm>",
+    "source_links": [
+      "http://www.gov.cn/gongbao/content/2007/content_711013.htm"
+    ]
+  },
+  "朋友让我替他担保签不签": {
+    "entry_id": "8-17",
+    "text": "签字前把纸看完，不替人签字，不在空白纸上签",
+    "plain": "签了就算数，按手印和签名一样算数。「没看清」「以为是别的」在法庭上很难成立。所以多花几分钟从头读到尾，看不懂的当场问，拍照留底。不替别人签，不在空白纸上签，身份证复印件写清用途。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 8 节第 17 条（签字前把纸看完，不替人签字，不在空白纸上签）",
+    "source_text": "全国人大 (2020). 民法典（第四百六十五、四百九十、五百零九条）. <https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml>",
+    "source_links": [
+      "https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml"
+    ]
+  },
+  "体检发现结节要不要手术": {
+    "entry_id": "23-10",
+    "text": "先看第 23 节第 10 条",
+    "plain": "按美国的估算，约 47% 的岗位有较高风险被计算机接手，后来按具体任务估的比例低得多。机器难过的坎有三样：手上的灵巧劲、想出新东西、跟人打交道。所以要到现场、环境不标准、得临场判断的活更难被顶掉，流程固定、主要处理信息的岗位风险最高。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "B",
+    "citation": "第 23 节第 10 条（挑技能时优先看「要不要动手、要不要现场判断」，这类最难被自动化顶掉）",
+    "source_text": "Frey CB, Osborne MA (2017). The future of employment: how susceptible are jobs to computerisation? Technological Forecasting and Social Change, 114, 254-280. <https://doi.org/10.1016/j.techfore.2016.08.019>",
+    "source_links": [
+      "https://doi.org/10.1016/j.techfore.2016.08.019"
+    ]
+  },
+  "熬夜怎么补救": {
+    "entry_id": "3-2",
+    "text": "固定起床时间，周末也一样",
+    "plain": "作息最乱的那五分之一人，生物钟比最规律的那五分之一晚了约 2.5 小时。等于长期活在时差里。作息越规律的学生，成绩也越好。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "时间"
+    },
+    "evidence": "B",
+    "citation": "第 3 节第 2 条（固定起床时间，周末也一样）",
+    "source_text": "Phillips et al. (2017). Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. Scientific Reports. <https://doi.org/10.1038/s41598-017-03171-4>",
+    "source_links": [
+      "https://doi.org/10.1038/s41598-017-03171-4"
+    ]
+  },
+  "结婚划不划算": {
+    "entry_id": "10-16",
+    "text": "先看第 10 节第 16 条",
+    "plain": "长辈那份收益，也就是安心、面子、不再催，是真的。但它不会自动变成你的健康收益或关系质量。而时间账、钱账和退出成本这三笔，全部由你自己承担。在纸上分两栏，把哪些收益归自己、哪些归长辈写开，这笔账划不划算自己一眼就能看出来。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "时间"
+    },
+    "evidence": "C",
+    "citation": "第 10 节第 16 条（给「为长辈结婚」单独记一笔账，别和自己的账混在一起）",
+    "source_text": "作者经验，方法类建议；数据部分见本节前面各条",
+    "source_links": []
+  },
+  "遇到电信诈骗怎么办": {
+    "entry_id": "21-5",
+    "text": "先看第 21 节第 5 条",
+    "plain": "月薪高得离谱、不问学历经验、不签正规合同、让你先到边境城市集合、还替你保管护照。这种活去了，人和护照都不在自己手上。出境时材料造假，边检会把你拦下不放行。在境外违法犯罪、危害国家安全和利益的，回国之后还可能 6 个月到 3 年不准出境。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "自由"
+    },
+    "evidence": "A",
+    "citation": "第 21 节第 5 条（「境外高薪招聘」一律当诈骗看，被骗去做电诈回来还可能要被限制出境）",
+    "source_text": "国务院 (2026). 关于出境入境管理的规定（国令第 841 号）. <https://www.gov.cn/zhengce/zhengceku/202607/content_7077173.htm>（第三、四条）；司法部、公安部、国家移民局 (2026). 就《国务院关于出境入境管理的规定》答记者问. <https://www.gov.cn/zhengce/202608/content_7077270.htm>",
+    "source_links": [
+      "https://www.gov.cn/zhengce/zhengceku/202607/content_7077173.htm",
+      "https://www.gov.cn/zhengce/202608/content_7077270.htm"
+    ]
+  },
+  "试用期被辞退有补偿吗": {
+    "entry_id": "19-3",
+    "text": "先看第 19 节第 3 条",
+    "plain": "合同签 3 个月以上不满 1 年的，试用期最多 1 个月。签 1 年以上不满 3 年的最多 2 个月，签 3 年以上的最多 6 个月。同一家公司只能试用你一次，转正后调个岗再来一次是违法的。试用期工资不能低于同岗位最低档或者合同约定工资的 80%，也不能低于当地最低工资。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 19 节第 3 条（试用期有法定上限、工资不得低于 80%，而且只能约定一次）",
+    "source_text": "全国人大常委会 (2007). 劳动合同法（第十九、二十、二十一、八十三条）. <http://www.gov.cn/gongbao/content/2007/content_711013.htm>",
+    "source_links": [
+      "http://www.gov.cn/gongbao/content/2007/content_711013.htm"
+    ]
+  },
+  "医保断缴有什么影响": {
+    "entry_id": "7-18",
+    "text": "社保断缴不要慌：养老按累计算，医保按规则补",
+    "plain": "养老金按累计年限算，断了不清零。到退休年龄累计满 15 年就能按月领，职工养老 2030 年起逐年提到 20 年。职工医保交够年限，退休后不用再交，年限各地不同。断缴影响两样：居民医保重新交上后有段时间不给报，各地买房、落户、积分常要求连续缴费。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 7 节第 18 条（社保断缴不要慌：养老按累计算，医保按规则补）",
+    "source_text": "全国人大常委会 (2010, 2018 修正). 社会保险法（第十六、十九、二十七条）. <https://www.gov.cn/guoqing/2021-10/29/content_5647616.htm>；国务院办公厅 (2024). 关于健全基本医疗保险参保长效机制的指导意见（国办发〔2024〕38 号）. <https://www.gov.cn/zhengce/content/202408/content_6965741.htm>；全国人民代表大会常务委员会 (2024). 关于实施渐进式延迟法定退休年龄的决定（附件《国务院关于渐进式延迟法定退休年龄的办法》第二条）. <https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm>",
+    "source_links": [
+      "https://www.gov.cn/guoqing/2021-10/29/content_5647616.htm",
+      "https://www.gov.cn/zhengce/content/202408/content_6965741.htm",
+      "https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm"
+    ]
+  },
+  "出国旅行要准备什么": {
+    "entry_id": "8-41",
+    "text": "先看第 8 节第 41 条",
+    "plain": "借钱、欠款、赔偿、退款、劳动纠纷，电话里说清楚了却没留下东西，几个月后双方就可能各说一套。你自己参加的谈话可以录下来，没提前告诉对方，不会单凭这一点就不能当证据。不能干的是窃听、偷窥别人隐私、闯进别人家里偷录，或者威胁对方说话。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 8 节第 41 条（可能翻脸的电话和面谈，直接开录音：自己参加的谈话，不用先征得对方同意）",
+    "source_text": "全国人大常委会 (2023 年修正，2024 年 1 月 1 日施行). 民事诉讼法（第六十六条）. 上海市发展和改革委员会转载全文 <https://fgw.sh.gov.cn/ys-syjf-zc-2.4.1-h5/20240408/073febdb2b04464390546232d4089f51.html>；最高人民法院 (2022 年第二次修正). 关于适用《中华人民共和国民事诉讼法》的解释（第一百零六条）. <https://www.court.gov.cn/fabu/xiangqing/353651.html>；最高人民法院 (2019 年修正). 关于民事诉讼证据的若干规定（第十四、十五、九十条）. <https://www.court.gov.cn/zixun/xiangqing/212721.html>；刘丹妮 (2023). 电影《消失的她》中的法律（人民法院报，最高人民法院官网转载）. <https://www.court.gov.cn/zixun/xiangqing/406032.html>",
+    "source_links": [
+      "https://fgw.sh.gov.cn/ys-syjf-zc-2.4.1-h5/20240408/073febdb2b04464390546232d4089f51.html",
+      "https://www.court.gov.cn/fabu/xiangqing/353651.html",
+      "https://www.court.gov.cn/zixun/xiangqing/212721.html",
+      "https://www.court.gov.cn/zixun/xiangqing/406032.html"
+    ]
+  }
+}
