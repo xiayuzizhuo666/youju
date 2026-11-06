@@ -96,21 +96,21 @@ function signFromEntry(entry: BookEntry, text?: string): SignPayload {
 export async function selectSign(chat: ChatFn, question: string, candidates: BookEntry[]) {
   const byId = new Map(candidates.map((entry) => [entry.id, entry]));
   const fallback = candidates[0];
-  if (!fallback) return { mode: "no_match" as const, candidates: [] };
+  if (!fallback) return { mode: "no_match" as const, candidates: [], degraded: false };
   try {
     const raw = await chat([
       { role: "system", content: SIGN_SYSTEM },
       { role: "user", content: signUser(question, candidates) },
     ], { json: true, temperature: 0.2, maxTokens: 600 });
     const parsed = signSchema.parse(parseJson(raw));
-    if (parsed.mode === "no_match" || !parsed.sign) return { mode: "no_match" as const, candidates: [] };
+    if (parsed.mode === "no_match" || !parsed.sign) return { mode: "no_match" as const, candidates: [], degraded: false };
     const chosen = byId.get(parsed.sign.entry_id) ?? fallback;
     const sign = signFromEntry(chosen, parsed.sign.text);
-    if (unsupportedClaims(sign.text, [chosen]).length > 0) return { mode: "sign" as const, sign: signFromEntry(chosen), candidates: [chosen.id] };
-    return { mode: "sign" as const, sign, candidates: parsed.candidates.filter((id) => byId.has(id)) };
+    if (unsupportedClaims(sign.text, [chosen]).length > 0) return { mode: "sign" as const, sign: signFromEntry(chosen), candidates: [chosen.id], degraded: true };
+    return { mode: "sign" as const, sign, candidates: parsed.candidates.filter((id) => byId.has(id)), degraded: false };
   } catch (error) {
     console.warn("generate_sign_failed", error instanceof Error ? error.message : error);
-    return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: [fallback.id] };
+    return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: [fallback.id], degraded: true };
   }
 }
 

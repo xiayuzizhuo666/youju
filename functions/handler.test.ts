@@ -33,9 +33,11 @@ const chat: ChatFn = async (messages) => {
 
 function makeHandler() {
   return createHandler({
-    book, chat, now: () => 1_800_000_000_000,
+    book, chat, now: () => Date.now(),
     env: { APP_HMAC_SECRET: "test" },
-    limiter: createLimiter({ now: () => 1_800_000_000_000, maxPerIp: 10, maxGlobal: 10 }),
+    limiter: createLimiter({ maxPerIp: 10, maxGlobal: 10 }),
+    expandLimiter: createLimiter({ maxPerIp: 10, maxGlobal: 10 }),
+    curated: {},
   });
 }
 

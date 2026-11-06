@@ -1,5 +1,6 @@
 import type { AskResponse, BookData, ExpandResponse, SignPayload, SignTokenPayload } from "../shared/types.ts";
 import { retrieve } from "../shared/bm25.ts";
+import { normalizeQuestion } from "../shared/normalize.ts";
 import { classifyTriage } from "./guard.ts";
 import { routeQuestion, selectSign, expandAnswer, type ChatFn } from "./generate.ts";
 import { signToken, verifyToken } from "./token.ts";
@@ -18,6 +19,8 @@ export interface HandlerDeps {
   now: () => number;
   env: { APP_HMAC_SECRET: string };
   limiter: ReturnType<typeof createLimiter>;
+  expandLimiter: ReturnType<typeof createLimiter>;
+  curated: Record<string, SignPayload>;
 }
 
 function json(payload: unknown, status = 200): Response {
@@ -41,10 +44,15 @@ function clientIp(request: Request): string {
 function triageMessage(kind: "emergency" | "suicide" | "legal"): { message: string; citation?: string } {
   if (kind === "emergency") return { message: "这可能是急症：先打 120（火警/事故打 119），再做现场第一个动作。不要先翻书。", citation: "第 13 节（紧急情况）" };
   if (kind === "suicide") return { message: "如果你现在有伤害自己的念头，先打全国心理援助热线 12356，或让身边的人陪着你。", citation: "第 1 节、第 29 节" };
-  return { message: "涉及人身安全或正在进行的法律程序（传唤、拘留、起诉）：先保证安全、报警或找律师；书里只给通用口径，不替个案下判断。", citation: "第 8 节（别把自己搭进去）、第 10 节" };
+  return { message: "涉及人身安全或正在进行的法律程序（传唤、拘留、起诉）：先保证安全、报警或找律师；书里只给通用口径，不替个案下判断。", citation: "第 8 节（别把自己搭进去）" };
 }
 
 export function createHandler(deps: HandlerDeps) {
+  async function fallbackResponse(question: string, sign: SignPayload): Promise<Response> {
+    const token = await signToken({ q: question, s: sign, c: [sign.entry_id], exp: deps.now() + 20 * 60_000 }, deps.env.APP_HMAC_SECRET);
+    return json({ ok: true, mode: "fallback", question, sign, signToken: token, disclaimer: DISCLAIMER } satisfies AskResponse);
+  }
+
   return async function handler(request: Request): Promise<Response> {
     try {
       const url = new URL(request.url);
@@ -69,12 +77,14 @@ export function createHandler(deps: HandlerDeps) {
 
       const text = await request.text();
       if (text.length > MAX_BODY) return error("body_too_large", 413, "请求内容过大。");
-      let body: Record<string, unknown>;
+      let parsed: unknown;
       try {
-        body = JSON.parse(text);
+        parsed = JSON.parse(text);
       } catch {
         return error("invalid_json", 400, "请求格式不正确。");
       }
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return error("invalid_json", 400, "请求格式不正确。");
+      const body = parsed as Record<string, unknown>;
 
       const action = body.action;
       if (action === "ask") {
@@ -86,19 +96,21 @@ export function createHandler(deps: HandlerDeps) {
           return json(response);
         }
 
-        const cached = (curatedJson as Record<string, SignPayload>)[question];
+        const key = normalizeQuestion(question);
+        const cached = Object.hasOwn(deps.curated, key) ? deps.curated[key] : undefined;
         if (!deps.limiter.allow(clientIp(request))) {
-          if (cached) return json({ ok: true, mode: "fallback", question, sign: cached, disclaimer: DISCLAIMER } satisfies AskResponse);
+          if (cached) return fallbackResponse(question, cached);
           return error("rate_limited", 429, "今天的演示额度用完了，明天再来，或先翻今日一签。");
         }
 
         const routed = await routeQuestion(deps.chat, question, deps.book.sections);
+        if (routed.confidence === 0 && cached) return fallbackResponse(question, cached);
         const selected = routed.confidence >= 0.5
           ? deps.book.entries.filter((entry) => routed.sections.includes(entry.section_no))
           : deps.book.entries;
         const { candidates } = retrieve(selected, question, 20);
         if (candidates.length === 0) {
-          if (cached) return json({ ok: true, mode: "fallback", question, sign: cached, disclaimer: DISCLAIMER } satisfies AskResponse);
+          if (cached) return fallbackResponse(question, cached);
           const response: AskResponse = {
             ok: true, mode: "no_match", question,
             nearest_sections: deps.book.sections.slice(0, 3).map((section) => ({ no: section.no, title: section.title })),
@@ -108,8 +120,9 @@ export function createHandler(deps: HandlerDeps) {
         }
 
         const result = await selectSign(deps.chat, question, candidates);
+        if (result.degraded && cached) return fallbackResponse(question, cached);
         if (result.mode === "no_match" || !result.sign) {
-          if (cached) return json({ ok: true, mode: "fallback", question, sign: cached, disclaimer: DISCLAIMER } satisfies AskResponse);
+          if (cached) return fallbackResponse(question, cached);
           const response: AskResponse = {
             ok: true, mode: "no_match", question,
             nearest_sections: deps.book.sections.slice(0, 3).map((section) => ({ no: section.no, title: section.title })),
@@ -131,6 +144,7 @@ export function createHandler(deps: HandlerDeps) {
         if (!payload) return error("invalid_token", 400, "这张签已过期，请重新翻一次。");
         const candidates = deps.book.entries.filter((entry) => payload.c.includes(entry.id) || entry.id === payload.s.entry_id);
         if (candidates.length === 0) return error("invalid_token", 400, "签对应的条目不存在。");
+        if (!deps.expandLimiter.allow(clientIp(request))) return error("rate_limited", 429, "今天的演示额度用完了，明天再来，或先翻今日一签。");
         const expand = await expandAnswer(deps.chat, payload.q, payload.s, candidates);
         const response: ExpandResponse = { ok: true, expand, citations: expand.actions.map((item) => item.citation), disclaimer: DISCLAIMER };
         return json(response);
@@ -151,6 +165,15 @@ function envValue(name: string): string {
   return String(proc?.env?.[name] ?? "").trim();
 }
 
+function randomSecret(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+const configuredSecret = envValue("APP_HMAC_SECRET");
+if (!configuredSecret) console.warn("APP_HMAC_SECRET_missing_using_random_secret");
+const hmacSecret = configuredSecret || randomSecret();
+
 const chat: ChatFn = async (messages, options) => {
   const result = await proxyChat({
     providerId: "deepseek",
@@ -168,6 +191,8 @@ export const handler = createHandler({
   book: bookJson as unknown as BookData,
   chat,
   now: Date.now,
-  env: { APP_HMAC_SECRET: envValue("APP_HMAC_SECRET") || "dev-only-secret" },
+  env: { APP_HMAC_SECRET: hmacSecret },
   limiter: createLimiter({ maxPerIp: 30, maxGlobal: 500 }),
+  expandLimiter: createLimiter({ maxPerIp: 10, maxGlobal: 200 }),
+  curated: curatedJson as Record<string, SignPayload>,
 });
