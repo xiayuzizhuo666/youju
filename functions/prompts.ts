@@ -1,4 +1,4 @@
-import type { BookEntry, BookSection, SignPayload } from "../shared/types.ts";
+import type { BookEntry, BookSection, SignPayload } from "./lib/types.ts";
 
 export const ROUTE_SYSTEM = `你是《高性价比人生指南》的章节路由。只输出 JSON。
 从给出的章节里选 1 到 3 个最相关的节号，格式：

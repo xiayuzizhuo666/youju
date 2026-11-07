@@ -1,6 +1,5 @@
-import { z } from "zod";
-import type { BookEntry, BookSection, ExpandAction, ExpandPayload, SignPayload } from "../shared/types.ts";
-import { shortenTitle } from "../shared/text.ts";
+import type { BookEntry, BookSection, ExpandAction, ExpandPayload, SignPayload } from "./lib/types.ts";
+import { shortenTitle } from "./lib/text.ts";
 import { hasAbsoluteClaim, hasVerdict, unsupportedClaims } from "./guard.ts";
 import { EXPAND_SYSTEM, ROUTE_SYSTEM, SIGN_SYSTEM, expandUser, routeUser, signUser } from "./prompts.ts";
 
@@ -13,31 +12,37 @@ const SIGN_MAX_CHARS = 24;
 const RATIO_RANK: Record<string, number> = { 极高: 0, 高: 1, 一般: 2 };
 const EVIDENCE_RANK: Record<string, number> = { A: 0, B: 1, C: 2 };
 
-const routeSchema = z.object({
-  sections: z.array(z.number().int()).min(1).max(3),
-  confidence: z.number().min(0).max(1),
-});
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
 
-const signSchema = z.object({
-  mode: z.enum(["sign", "no_match"]),
-  sign: z.object({ entry_id: z.string(), text: z.string().min(1).max(48) }).optional(),
-  candidates: z.array(z.string()).max(8).default([]),
-});
+function asString(value: unknown, max = 1000): string {
+  return typeof value === "string" ? value.slice(0, max) : "";
+}
 
-const expandSchema = z.object({
-  conclusion: z.string().max(120).default(""),
-  actions: z.array(z.object({
-    entry_id: z.string(), action: z.string(), cost: z.string(),
-    benefit: z.string(), evidence: z.enum(["A", "B", "C"]),
-  })).default([]),
-  avoid: z.array(z.object({
-    entry_id: z.string(), action: z.string(), cost: z.string(),
-    benefit: z.string(), evidence: z.enum(["A", "B", "C"]),
-  })).default([]),
-  not_covered: z.string().default(""),
-  refer: z.string().default(""),
-  recheck: z.string().default(""),
-});
+function asStringArray(value: unknown, maxItems = 8): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string").slice(0, maxItems)
+    : [];
+}
+
+function asEvidence(value: unknown): "A" | "B" | "C" {
+  return value === "A" || value === "B" || value === "C" ? value : "C";
+}
+
+function parseExpandItems(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(isRecord)
+    .map((item) => ({
+      entry_id: asString(item.entry_id),
+      action: asString(item.action),
+      cost: asString(item.cost),
+      benefit: asString(item.benefit),
+      evidence: asEvidence(item.evidence),
+    }))
+    .filter((item) => item.entry_id && item.action);
+}
 
 function parseJson(text: string): unknown {
   const cleaned = text.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
@@ -51,11 +56,18 @@ export async function routeQuestion(chat: ChatFn, question: string, sections: Bo
       { role: "system", content: ROUTE_SYSTEM },
       { role: "user", content: routeUser(question, sections) },
     ], { json: true, temperature: 0, maxTokens: 300 });
-    const parsed = routeSchema.parse(parseJson(raw));
+    const parsed = parseJson(raw);
+    if (!isRecord(parsed)) throw new Error("invalid route");
+    const parsedSections = Array.isArray(parsed.sections)
+      ? parsed.sections.filter((no): no is number => typeof no === "number" && Number.isInteger(no))
+      : [];
     const allowed = new Set(supplied);
-    const routed = [...new Set(parsed.sections.filter((no) => allowed.has(no)))].slice(0, 3);
+    const routed = [...new Set(parsedSections.filter((no) => allowed.has(no)))].slice(0, 3);
     if (routed.length === 0) return { sections: supplied, confidence: 0 };
-    return { sections: routed, confidence: parsed.confidence };
+    const confidence = typeof parsed.confidence === "number" && parsed.confidence >= 0 && parsed.confidence <= 1
+      ? parsed.confidence
+      : 0;
+    return { sections: routed, confidence };
   } catch (error) {
     console.warn("generate_route_failed", error instanceof Error ? error.message : error);
     return { sections: supplied, confidence: 0 };
@@ -133,17 +145,24 @@ export async function selectSign(chat: ChatFn, question: string, candidates: Boo
       { role: "system", content: SIGN_SYSTEM },
       { role: "user", content: signUser(question, candidates) },
     ], { json: true, temperature: 0.2, maxTokens: 600 });
-    const parsed = signSchema.parse(parseJson(raw));
-    if (parsed.mode === "no_match" || !parsed.sign) return { mode: "no_match" as const, candidates: [], degraded: false };
-    const chosen = byId.get(parsed.sign.entry_id);
+    const parsed = parseJson(raw);
+    if (!isRecord(parsed)) throw new Error("invalid sign");
+    const mode = parsed.mode === "no_match" ? "no_match" : parsed.mode === "sign" ? "sign" : null;
+    if (!mode) throw new Error("invalid sign mode");
+    if (mode === "no_match") return { mode: "no_match" as const, candidates: [], degraded: false };
+    const signObj = isRecord(parsed.sign) ? parsed.sign : null;
+    const entryId = signObj ? asString(signObj.entry_id) : "";
+    const modelText = signObj ? asString(signObj.text, 48).trim() : "";
+    if (!entryId || !modelText) throw new Error("invalid sign payload");
+    const chosen = byId.get(entryId);
     if (!chosen) {
       // Never pair model prose with a different entry's citation: an unknown
       // id discards the text and degrades to the top candidate's own sign.
       return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true };
     }
-    const sign = signFromEntry(chosen, parsed.sign.text);
+    const sign = signFromEntry(chosen, modelText);
     if (unsupportedClaims(sign.text, [chosen]).length > 0) return { mode: "sign" as const, sign: signFromEntry(chosen), candidates: fallbackIds, degraded: true };
-    return { mode: "sign" as const, sign, candidates: parsed.candidates.filter((id) => byId.has(id)), degraded: false };
+    return { mode: "sign" as const, sign, candidates: asStringArray(parsed.candidates, 8).filter((id) => byId.has(id)), degraded: false };
   } catch (error) {
     console.warn("generate_sign_failed", error instanceof Error ? error.message : error);
     return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true };
@@ -210,8 +229,11 @@ export async function expandAnswer(chat: ChatFn, question: string, sign: SignPay
       { role: "system", content: EXPAND_SYSTEM },
       { role: "user", content: expandUser(question, sign, candidates) },
     ], { json: true, temperature: 0.3, maxTokens: 2000 });
-    const parsed = expandSchema.parse(parseJson(raw));
-    const clean = (items: typeof parsed.actions) => items
+    const parsed = parseJson(raw);
+    if (!isRecord(parsed)) throw new Error("invalid expand");
+    const actionsRaw = parseExpandItems(parsed.actions);
+    const avoidRaw = parseExpandItems(parsed.avoid);
+    const clean = (items: ReturnType<typeof parseExpandItems>) => items
       .filter((item) => byId.has(item.entry_id))
       .map((item) => {
         const entry = byId.get(item.entry_id)!;
@@ -229,7 +251,7 @@ export async function expandAnswer(chat: ChatFn, question: string, sign: SignPay
       .filter((item) => !hasAbsoluteClaim(`${item.action}${item.cost}${item.benefit}`))
       .filter((item) => !hasVerdict(`${item.action}${item.cost}${item.benefit}`))
       .filter((item) => unsupportedClaims(`${item.action}${item.cost}${item.benefit}`, [byId.get(item.entry_id)!]).length === 0);
-    const cleaned = orderActions(clean(parsed.actions), byId, sign.entry_id);
+    const cleaned = orderActions(clean(actionsRaw), byId, sign.entry_id);
     let actions = cleaned;
     if (cleaned.length >= 3) {
       // The contract puts the sign entry first even when the model omits it.
@@ -241,15 +263,15 @@ export async function expandAnswer(chat: ChatFn, question: string, sign: SignPay
     } else {
       actions = fallback;
     }
-    const conclusion = safeExpandText(parsed.conclusion);
+    const conclusion = safeExpandText(asString(parsed.conclusion, 120));
     const safeConclusion = conclusion && unsupportedClaims(conclusion, candidates).length === 0 ? conclusion : "";
     return {
       conclusion: safeConclusion,
       actions,
-      avoid: clean(parsed.avoid).slice(0, 3),
-      not_covered: safeExpandText(parsed.not_covered),
-      refer: safeExpandText(parsed.refer),
-      recheck: safeExpandText(parsed.recheck),
+      avoid: clean(avoidRaw).slice(0, 3),
+      not_covered: safeExpandText(asString(parsed.not_covered)),
+      refer: safeExpandText(asString(parsed.refer)),
+      recheck: safeExpandText(asString(parsed.recheck)),
     };
   } catch (error) {
     console.warn("generate_expand_failed", error instanceof Error ? error.message : error);

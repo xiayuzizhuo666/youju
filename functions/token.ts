@@ -1,4 +1,4 @@
-import type { SignTokenPayload } from "../shared/types.ts";
+import type { SignTokenPayload } from "./lib/types.ts";
 
 const encoder = new TextEncoder();
 

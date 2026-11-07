@@ -1,9 +1,9 @@
 import type { HandlerDeps } from "./handler.ts";
 import { routeQuestion, selectSign, expandAnswer } from "./generate.ts";
 import { classifyTriage } from "./guard.ts";
-import { retrieve } from "../shared/bm25.ts";
-import { DISCLAIMER } from "../shared/disclaimer.ts";
-import type { SignPayload } from "../shared/types.ts";
+import { retrieve } from "./lib/bm25.ts";
+import { DISCLAIMER } from "./lib/disclaimer.ts";
+import type { SignPayload } from "./lib/types.ts";
 import daily from "./data/daily-signs.json" with { type: "json" };
 
 interface DailySign {

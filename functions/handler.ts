@@ -1,7 +1,7 @@
-import type { AskResponse, BookData, ExpandResponse, SignPayload, SignResponse, SignTokenPayload } from "../shared/types.ts";
-import { retrieve } from "../shared/bm25.ts";
-import { DISCLAIMER } from "../shared/disclaimer.ts";
-import { normalizeQuestion } from "../shared/normalize.ts";
+import type { AskResponse, BookData, ExpandResponse, SignPayload, SignResponse, SignTokenPayload } from "./lib/types.ts";
+import { retrieve } from "./lib/bm25.ts";
+import { DISCLAIMER } from "./lib/disclaimer.ts";
+import { normalizeQuestion } from "./lib/normalize.ts";
 import { classifyTriage } from "./guard.ts";
 import { routeQuestion, selectSign, expandAnswer, signFromEntry, type ChatFn } from "./generate.ts";
 import { signToken, verifyToken } from "./token.ts";

@@ -1,4 +1,4 @@
-import type { BookEntry } from "../shared/types.ts";
+import type { BookEntry } from "./lib/types.ts";
 
 const EMERGENCY =
   /倒地|没有呼吸|大出血|火灾|着火|起火|溺水|触电|中毒|卒中|中风|心梗|胸痛|窒息|昏迷|晕倒|休克|呼吸困难|抽搐|烧伤|烫伤|车祸|误吞|吞了药/;
