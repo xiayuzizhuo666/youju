@@ -115,6 +115,18 @@ button { font-family: inherit; }
 .share-error { color: var(--vermilion-deep); margin: 8px 0 0; }
 .sign-disclaimer { color: var(--ink-muted); font-size: 12px; margin-top: 12px; }
 .degraded-note { color: var(--ink-muted); font-size: 13px; border-left: 2px solid var(--rule-strong); padding-left: 10px; margin: 14px 0 0; }
+.expand-progress { display: flex; justify-content: space-between; gap: 12px; color: var(--ink-muted); font-size: 13px; margin: 0 0 8px; }
+.expand-progress-time { font-variant-numeric: tabular-nums; }
+.expand-progress-bar { height: 2px; background: var(--rule); overflow: hidden; margin: 0 0 24px; }
+.expand-progress-bar span { display: block; width: 38%; height: 100%; background: var(--vermilion); animation: expand-progress 1.6s ease-in-out infinite; }
+.skeleton-line { height: 14px; border-radius: 2px; background: linear-gradient(90deg, var(--paper-deep) 25%, var(--paper-raised) 37%, var(--paper-deep) 63%); background-size: 400% 100%; animation: skeleton-shimmer 1.4s ease infinite; margin: 0 0 10px; }
+.skeleton-short { width: 32%; }
+.skeleton-meta { width: 62%; height: 12px; }
+.skeleton-action { border-top: 1px solid var(--rule); padding: 16px 0; }
+.skeleton-action:last-child { border-bottom: 1px solid var(--rule); }
+@keyframes expand-progress { from { transform: translateX(-100%); } to { transform: translateX(360%); } }
+@keyframes skeleton-shimmer { from { background-position: 100% 50%; } to { background-position: 0 50%; } }
+@media (prefers-reduced-motion: reduce) { .expand-progress-bar span, .skeleton-line { animation: none; } }
 .ask-streak { color: var(--ink-muted); font-size: 13px; margin: 10px 0 0; }
 .history-streak { color: var(--vermilion-deep); font-size: 13px; margin: 0 0 16px; }
 .history-empty { color: var(--ink-muted); }

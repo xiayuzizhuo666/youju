@@ -5,6 +5,53 @@ import { expand } from "@/lib/api";
 import { navigate } from "@/lib/router";
 import type { ExpandResponse } from "../shared/types";
 
+function expandWaitStatus(elapsed: number): string {
+  if (elapsed < 3) return "正在算这本账…";
+  if (elapsed < 8) return "还在算，模型正在核对书里的条目…";
+  return "快好了；模型有时会多花几秒。";
+}
+
+function ExpandSkeleton({ token }: { token: string }) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed((value) => value + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <main className="book-page" aria-busy="true">
+      <header className="book-header">
+        <p className="book-kicker">这本账</p>
+        <h1>书里算了这几笔</h1>
+      </header>
+      <div className="expand-progress" role="status" aria-live="polite">
+        <span>{expandWaitStatus(elapsed)}</span>
+        <span className="expand-progress-time">{elapsed}s</span>
+      </div>
+      <div className="expand-progress-bar" aria-hidden="true"><span /></div>
+      <section className="expand-section" aria-hidden="true">
+        <div className="skeleton-line skeleton-short" />
+        <div className="skeleton-line" />
+      </section>
+      <section className="expand-section" aria-hidden="true">
+        <div className="skeleton-line skeleton-short" />
+        {[0, 1, 2].map((index) => (
+          <div className="skeleton-action" key={index}>
+            <div className="skeleton-line" />
+            <div className="skeleton-line skeleton-meta" />
+          </div>
+        ))}
+      </section>
+      {elapsed >= 8 ? (
+        <div className="sign-actions">
+          <Button variant="outline" onClick={() => navigate(`/sign/${token}`)}>等太久？回到签卡</Button>
+        </div>
+      ) : null}
+    </main>
+  );
+}
+
 export function ExpandPage({ token }: { token: string }) {
   const [data, setData] = useState<ExpandResponse | null>(null);
   const [error, setError] = useState("");
@@ -27,7 +74,7 @@ export function ExpandPage({ token }: { token: string }) {
     );
   }
 
-  if (!data) return <main className="book-page"><p>正在算这本账…</p></main>;
+  if (!data) return <ExpandSkeleton token={token} />;
 
   return (
     <main className="book-page">
