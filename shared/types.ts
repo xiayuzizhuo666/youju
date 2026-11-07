@@ -65,6 +65,8 @@ export interface ExpandAction {
 }
 
 export interface ExpandPayload {
+  /** One-line conclusion: whether the trade is worth it and the first step. */
+  conclusion?: string;
   actions: ExpandAction[];
   avoid: ExpandAction[];
   not_covered: string;
@@ -72,9 +74,15 @@ export interface ExpandPayload {
   recheck: string;
 }
 
+/**
+ * Compact, HMAC-signed token carried in `/sign/:token` and `/expand/:token`.
+ * It only carries references (question, chosen entry, candidate entries,
+ * expiry); the sign body is always re-hydrated from the book on the server so
+ * a fabricated token cannot render a branded, book-cited card.
+ */
 export interface SignTokenPayload {
   q: string;
-  s: SignPayload;
+  id: string;
   c: string[];
   exp: number;
 }
@@ -89,6 +97,13 @@ export interface AskResponse {
   nearest_sections?: { no: number; title: string }[];
   /** True when the answer came from a generation-layer fallback, not the model. */
   degraded?: boolean;
+  disclaimer: string;
+}
+
+export interface SignResponse {
+  ok: true;
+  question: string;
+  sign: SignPayload;
   disclaimer: string;
 }
 

@@ -21,9 +21,21 @@ function ActionList({ title, items }: { title: string; items: ExpandPayload["act
 export function ExpandView({ expand }: { expand: ExpandPayload }) {
   return (
     <div className="expand">
+      {expand.conclusion ? (
+        <section className="expand-section expand-conclusion">
+          <h2>一句话结论</h2>
+          <p className="expand-action">{expand.conclusion}</p>
+        </section>
+      ) : null}
       <ActionList title="先做这几条" items={expand.actions} />
       <ActionList title="别做 / 不用做" items={expand.avoid} />
-      {expand.not_covered ? <section className="expand-section"><h2>书里没写的</h2><p>{expand.not_covered}</p></section> : null}
+      {expand.not_covered ? (
+        <section className="expand-section">
+          <h2>书里没写的</h2>
+          <p className="expand-note">不是书里的内容，只是常识提醒。</p>
+          <p>{expand.not_covered}</p>
+        </section>
+      ) : null}
       {expand.refer ? <section className="expand-section"><h2>该找谁</h2><p>{expand.refer}</p></section> : null}
       {expand.recheck ? <section className="expand-section"><h2>什么时候回来看</h2><p>{expand.recheck}</p></section> : null}
     </div>

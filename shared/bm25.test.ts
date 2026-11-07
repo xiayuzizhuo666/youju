@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildIndex, retrieve, search } from "./bm25";
+import { buildIndex, indexFor, retrieve, search } from "./bm25";
 import type { BookEntry } from "./types";
 
 function entry(partial: Partial<BookEntry> & Pick<BookEntry, "id" | "title">): BookEntry {
@@ -30,5 +30,19 @@ describe("bm25", () => {
     const result = retrieve(entries, "押金不退");
     expect(result.candidates[0].id).toBe("15-1");
     expect(result.topScore).toBeGreaterThan(0);
+  });
+
+  it("memoizes the index by entries array identity", () => {
+    const entries = [
+      entry({ id: "15-1", title: "房东不退押金怎么办", plain: "押金应当退还。" }),
+      entry({ id: "10-1", title: "怎么判断这段关系好不好", plain: "看自己的感受。" }),
+    ];
+    expect(indexFor(entries)).toBe(indexFor(entries));
+    expect(indexFor(entries)).not.toBe(buildIndex(entries));
+
+    const first = retrieve(entries, "押金不退");
+    const second = retrieve(entries, "押金不退");
+    expect(second.candidates.map((candidate) => candidate.id)).toEqual(first.candidates.map((candidate) => candidate.id));
+    expect(second.topScore).toBe(first.topScore);
   });
 });

@@ -2,10 +2,9 @@ import type { HandlerDeps } from "./handler.ts";
 import { routeQuestion, selectSign, expandAnswer } from "./generate.ts";
 import { classifyTriage } from "./guard.ts";
 import { retrieve } from "../shared/bm25.ts";
+import { DISCLAIMER } from "../shared/disclaimer.ts";
 import type { SignPayload } from "../shared/types.ts";
 import daily from "./data/daily-signs.json" with { type: "json" };
-
-const DISCLAIMER = "通用口径，不替代医生、律师、会计；政策以当地部门为准。";
 
 interface DailySign {
   date: string;
@@ -20,7 +19,7 @@ function json(payload: unknown, status = 200): Response {
   });
 }
 
-export async function handleAgent(body: Record<string, unknown>, deps: HandlerDeps): Promise<Response> {
+export async function handleAgent(body: Record<string, unknown>, deps: HandlerDeps, ip = "unknown"): Promise<Response> {
   const tool = body.tool;
   const input = (body.input ?? {}) as Record<string, unknown>;
 
@@ -42,7 +41,9 @@ export async function handleAgent(body: Record<string, unknown>, deps: HandlerDe
     if (triage) {
       return json({ ok: true, result: { mode: "triage", triage, disclaimer: DISCLAIMER } });
     }
-    if (!deps.limiter.allow("agent")) return json({ ok: false, error: "rate_limited", message: "演示额度用完了。" }, 429);
+    // Keyed by caller IP so one caller's smoke tests cannot exhaust another
+    // caller's (for example a judge's) demo quota.
+    if (!deps.limiter.allow(ip)) return json({ ok: false, error: "rate_limited", message: "演示额度用完了。" }, 429);
     const routed = await routeQuestion(deps.chat, question, deps.book.sections);
     const pool = routed.confidence >= 0.5
       ? deps.book.entries.filter((entry) => routed.sections.includes(entry.section_no))

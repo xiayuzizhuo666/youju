@@ -97,6 +97,18 @@ describe("agent", () => {
     expect(body.error).toBe("rate_limited");
   });
 
+  it("keys the agent quota by caller IP instead of one shared agent bucket", async () => {
+    const keys: string[] = [];
+    const limiter = { allow: (key: string) => { keys.push(key); return true; }, remaining: () => 1 };
+    const response = await handleAgent(
+      { tool: "ask_life_question", input: { question: "房东不退押金怎么办" } },
+      makeDeps({ limiter }),
+      "203.0.113.7",
+    );
+    expect(response.status).toBe(200);
+    expect(keys).toEqual(["203.0.113.7"]);
+  });
+
   it("rejects an unknown tool", async () => {
     const response = await handleAgent({ tool: "not_a_tool", input: {} }, makeDeps());
     const body = await response.json();

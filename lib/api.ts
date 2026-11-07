@@ -1,4 +1,4 @@
-import type { AskResponse, ExpandResponse } from "../shared/types";
+import type { AskResponse, ExpandResponse, SignResponse } from "../shared/types";
 
 async function post<T>(payload: unknown): Promise<T> {
   const response = await fetch("/functions/v1/app", {
@@ -13,6 +13,10 @@ async function post<T>(payload: unknown): Promise<T> {
 
 export function ask(question: string): Promise<AskResponse> {
   return post<AskResponse>({ action: "ask", question });
+}
+
+export function sign(token: string): Promise<SignResponse> {
+  return post<SignResponse>({ action: "sign", token });
 }
 
 export function expand(token: string): Promise<ExpandResponse> {
