@@ -1,4 +1,12 @@
-import type { AskResponse, ExpandResponse, SignResponse } from "../shared/types";
+import type { AskResponse, ExpandResponse, SignPayload, SignResponse } from "../shared/types";
+
+export interface DailyResponse {
+  ok: true;
+  question: string;
+  sign: SignPayload;
+  signToken: string;
+  disclaimer: string;
+}
 
 async function post<T>(payload: unknown): Promise<T> {
   const response = await fetch("/functions/v1/app", {
@@ -13,6 +21,13 @@ async function post<T>(payload: unknown): Promise<T> {
 
 export function ask(question: string): Promise<AskResponse> {
   return post<AskResponse>({ action: "ask", question });
+}
+
+export async function daily(): Promise<DailyResponse> {
+  const response = await fetch("/functions/v1/app?action=daily");
+  const data = await response.json().catch(() => null);
+  if (!response.ok || !data?.ok) throw new Error(data?.message ?? "今日一签暂时打不开。");
+  return data as DailyResponse;
 }
 
 export function sign(token: string): Promise<SignResponse> {

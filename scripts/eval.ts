@@ -66,7 +66,7 @@ interface EvalRow {
 const root = resolve(import.meta.dirname, "..");
 const book = JSON.parse(readFileSync(join(root, "data", "book.json"), "utf8")) as BookData;
 const questions = JSON.parse(readFileSync(join(root, "data", "eval-questions.json"), "utf8")) as EvalQuestion[];
-const curated = JSON.parse(readFileSync(join(root, "functions", "data", "curated-cache.json"), "utf8")) as Record<string, SignPayload>;
+const curated = JSON.parse(readFileSync(join(root, "data", "curated-cache.json"), "utf8")) as Record<string, SignPayload>;
 
 const apiKey = (process.env.DEEPSEEK_API_KEY ?? "").trim();
 const model = (process.env.DEEPSEEK_MODEL ?? "").trim() || "deepseek-chat";

@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { BookData, BookEntry, SignPayload } from "../shared/types.ts";
 import { normalizeQuestion } from "../shared/normalize.ts";
@@ -87,9 +87,7 @@ if (process.argv[1] && process.argv[1].endsWith("precompute.ts")) {
   const book = JSON.parse(readFileSync(join(root, "data", "book.json"), "utf8")) as BookData;
   const daily = buildDailySigns(book, 365);
   const curated = buildCuratedCacheFromMap(book, CURATED);
-  mkdirSync(join(root, "functions", "data"), { recursive: true });
   writeFileSync(join(root, "data", "daily-signs.json"), JSON.stringify(daily, null, 2));
-  writeFileSync(join(root, "functions", "data", "daily-signs.json"), JSON.stringify(daily, null, 2));
-  writeFileSync(join(root, "functions", "data", "curated-cache.json"), JSON.stringify(curated, null, 2));
+  writeFileSync(join(root, "data", "curated-cache.json"), JSON.stringify(curated, null, 2));
   console.log(`daily ${daily.length}, curated ${Object.keys(curated).length}`);
 }

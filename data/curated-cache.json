@@ -1,0 +1,218 @@
+{
+  "房东不退押金怎么办": {
+    "entry_id": "15-1",
+    "text": "租房时押金的数额、退还时间和扣减情形…",
+    "plain": "押金多少、什么时候退、什么情况下能扣，签字前就要写进合同。合同里没写的情形，房东没有正当理由，退租时就不能扣你的押金。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 15 节第 1 条（租房时押金的数额、退还时间和扣减情形，必须写进合同）",
+    "source_text": "国务院 (2025). 住房租赁条例（国令第 812 号，2025 年 9 月 15 日施行）（第十条）. <https://www.gov.cn/zhengce/zhengceku/202507/content_7032956.htm>",
+    "source_links": [
+      "https://www.gov.cn/zhengce/zhengceku/202507/content_7032956.htm"
+    ]
+  },
+  "被裁了第一步做什么": {
+    "entry_id": "19-4",
+    "text": "被裁先算清 N：每满一年一个月工资…",
+    "plain": "被裁时公司要给的经济补偿这样算：干满一年给一个月工资，满半年不满一年按一年算，不满半年给半个月。这里的月工资是走人前 12 个月的平均数，奖金、津贴、补贴都要算进去。工资高过当地上年度月平均工资 3 倍的按 3 倍封顶，年限最多算 12 年。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 19 节第 4 条（被裁先算清 N：每满一年一个月工资，不满六个月按半个月）",
+    "source_text": "全国人大常委会 (2007). 中华人民共和国劳动合同法（2008 年 1 月 1 日施行）（第四十七条）. <http://www.gov.cn/gongbao/content/2007/content_711013.htm>",
+    "source_links": [
+      "http://www.gov.cn/gongbao/content/2007/content_711013.htm"
+    ]
+  },
+  "朋友让我替他担保签不签": {
+    "entry_id": "8-18",
+    "text": "借钱写清借条，替人担保前先想清楚自己愿不愿意替…",
+    "plain": "借条要写全：出借人、借款人、金额、利率、期限、还款方式，双方签名。钱走转账，不给现金，写全了才好起诉。替人担保时看清有没有「连带」两个字。一般保证要等债主执行不到借款人的钱才轮到你，连带的可以直接找你要。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 8 节第 18 条（借钱写清借条，替人担保前先想清楚自己愿不愿意替他还）",
+    "source_text": "全国人大 (2020). 民法典（第六百六十八、六百八十一、六百八十六、六百八十七条）. <https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml>",
+    "source_links": [
+      "https://www.spp.gov.cn/spp/fl/202006/t20200602_463888.shtml"
+    ]
+  },
+  "体检发现结节要不要手术": {
+    "entry_id": "6-20",
+    "text": "不要因为体检查出胆囊结石、但从没疼过…",
+    "plain": "胆囊里有石头、但从没疼过的人，近九年里约八成一直没出症状。不动它，每年出胆囊炎、胰腺炎这类急症的约千分之一到千分之三。切胆囊也不是零风险，约 1.5% 的人胆管会被伤到。所以欧洲和英国的指南都说，没症状先不切。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "死亡率"
+    },
+    "evidence": "A",
+    "citation": "第 6 节第 20 条（不要因为体检查出胆囊结石、但从没疼过，就去预防性切胆囊）",
+    "source_text": "Festi D, Reggiani ML, Attili AF, et al. (2010). Natural history of gallstone disease: Expectant management or active treatment? Results from a population-based cohort study. Journal of Gastroenterology and Hepatology, 25(4), 719-724. <https://doi.org/10.1111/j.1440-1746.2009.06146.x>；McSherry CK, Ferstenberg H, Calhoun WF, Lahman E, Virshup M (1985). The natural history of diagnosed gallstone disease in symptomatic and asymptomatic patients. Annals of Surgery, 202(1), 59-63. <https://doi.org/10.1097/00000658-198507000-00009>；National Institute for Health and Care Excellence (2014). Gallstone disease: diagnosis and management. NICE guideline CG188，第 1.2.1、1.3.1 条. <https://www.nice.org.uk/guidance/cg188/chapter/Recommendations>；European Association for the Study of the Liver (2016). EASL Clinical Practice Guidelines on the prevention, diagnosis and treatment of gallstones. Journal of Hepatology, 65(1), 146-181. <https://doi.org/10.1016/j.jhep.2016.03.005>；Törnqvist B, Strömberg C, Persson G, Nilsson M (2012). Effect of intended intraoperative cholangiography and early detection of bile duct injury on survival after cholecystectomy: population based cohort study. BMJ, 345, e6457. <https://doi.org/10.1136/bmj.e6457>；Ransohoff DF, Gracie WA, Wolfenson LB, Neuhauser D (1983). Prophylactic cholecystectomy or expectant management for silent gallstones. A decision analysis to assess survival. Annals of Internal Medicine, 99(2), 199-204. <https://doi.org/10.7326/0003-4819-99-2-199>；Gurusamy KS, Samraj K (2007). Cholecystectomy versus no cholecystectomy in patients with silent gallstones. Cochrane Database of Systematic Reviews, CD006230. <https://doi.org/10.1002/14651858.CD006230.pub2>；反方：Venneman NG, Buskens E, Besselink MG, et al. (2005). Small gallstones are associated with increased risk of acute pancreatitis: potential benefits of prophylactic cholecystectomy? American Journal of Gastroenterology, 100(11), 2540-2550. <https://doi.org/10.1111/j.1572-0241.2005.00317.x>；中华医学会外科学分会胆道外科学组, 中国医师协会外科医师分会胆道外科医师委员会 (2022). 胆囊良性疾病外科治疗的专家共识（2021版）. 中华外科杂志, 60(1), 4-9. <https://doi.org/10.3760/cma.j.cn112139-20210811-00373>（全文需订阅，未取得）；同上 (2022). 《胆囊良性疾病外科治疗的专家共识（2021版）》解读. 中华外科杂志, 60(4), 337-342. <https://doi.org/10.3760/cma.j.cn112139-20220119-00031>",
+    "source_links": [
+      "https://doi.org/10.1111/j.1440-1746.2009.06146.x",
+      "https://doi.org/10.1097/00000658-198507000-00009",
+      "https://www.nice.org.uk/guidance/cg188/chapter/Recommendations",
+      "https://doi.org/10.1016/j.jhep.2016.03.005",
+      "https://doi.org/10.1136/bmj.e6457",
+      "https://doi.org/10.7326/0003-4819-99-2-199",
+      "https://doi.org/10.1002/14651858.CD006230.pub2",
+      "https://doi.org/10.1111/j.1572-0241.2005.00317.x",
+      "https://doi.org/10.3760/cma.j.cn112139-20210811-00373",
+      "https://doi.org/10.3760/cma.j.cn112139-20220119-00031"
+    ]
+  },
+  "熬夜怎么补救": {
+    "entry_id": "3-2",
+    "text": "固定起床时间，周末也一样",
+    "plain": "作息最乱的那五分之一人，生物钟比最规律的那五分之一晚了约 2.5 小时。等于长期活在时差里。作息越规律的学生，成绩也越好。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "时间"
+    },
+    "evidence": "B",
+    "citation": "第 3 节第 2 条（固定起床时间，周末也一样）",
+    "source_text": "Phillips et al. (2017). Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. Scientific Reports. <https://doi.org/10.1038/s41598-017-03171-4>",
+    "source_links": [
+      "https://doi.org/10.1038/s41598-017-03171-4"
+    ]
+  },
+  "结婚划不划算": {
+    "entry_id": "10-9",
+    "text": "时间账按「无酬劳动」算，谈清分工再领证",
+    "plain": "全国时间利用调查统计了家务和陪伴照料家人这类没报酬的活。当天做了的人里，男性每天平均 1 小时 52 分，女性 3 小时 29 分。调查没按结没结婚分组，所以「结了婚家务会多多少」没有官方数字，这个性别差距只能当上限参考。分工可以在领证前谈成另一个样子。",
+    "cost": {
+      "money": "0",
+      "time": "中",
+      "will": "些"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "时间"
+    },
+    "evidence": "A",
+    "citation": "第 10 节第 9 条（时间账按「无酬劳动」算，谈清分工再领证）",
+    "source_text": "国家统计局 (2024). 第三次全国时间利用调查公报（第二号、第三号）. <https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957216.html>、<https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957215.html>；国家统计局 (2019). 2018 年全国时间利用调查公报. <https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1900224.html>",
+    "source_links": [
+      "https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957216.html",
+      "https://www.stats.gov.cn/sj/zxfb/202410/t20241031_1957215.html",
+      "https://www.stats.gov.cn/sj/zxfb/202302/t20230203_1900224.html"
+    ]
+  },
+  "遇到电信诈骗怎么办": {
+    "entry_id": "8-2",
+    "text": "发现被骗，立刻打 110 或 96110…",
+    "plain": "钱刚转出去的那一小段时间最要紧，警方可以紧急止付、快速冻结，银行必须配合。等钱被转走、分散开，追回的机会就小多了。所以先打 110 或者 96110，别自己先去查、先去问。96110 打进来的是警察在劝阻你，要接。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 8 节第 2 条（发现被骗，立刻打 110 或 96110 要求止付，别先自己查）",
+    "source_text": "全国人大常委会 (2022). 反电信网络诈骗法（第二十、三十四条）. <https://www.spp.gov.cn/spp/fl/202209/t20220902_575631.shtml>；福建省公安厅 (2023). 96110 来电，请务必接听. <http://gat.fujian.gov.cn/ztzl/fjjffpzxrx/spjq/202303/t20230306_6126156.htm>（省级公安机关页面）",
+    "source_links": [
+      "https://www.spp.gov.cn/spp/fl/202209/t20220902_575631.shtml",
+      "http://gat.fujian.gov.cn/ztzl/fjjffpzxrx/spjq/202303/t20230306_6126156.htm"
+    ]
+  },
+  "试用期被辞退有补偿吗": {
+    "entry_id": "19-5",
+    "text": "公司以病后干不了、不胜任或情况大变为由辞退你…",
+    "plain": "公司因为你病后干不了、干不了工作或者情况大变而辞退你，要提前 30 天书面通知。没通知的，要在 N 之外再多给一个月工资，这就是常说的 N+1。谈的时候把这一个月单独列出来，别让公司把它算进 N 里面。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "中",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 19 节第 5 条（公司以病后干不了、不胜任或情况大变为由辞退你，没提前 30 天通知的，还要多付一个月工资）",
+    "source_text": "全国人大常委会 (2007). 中华人民共和国劳动合同法（2008 年 1 月 1 日施行）（第三十六、三十九、四十、四十一、四十六、四十七、八十七条）. <http://www.gov.cn/gongbao/content/2007/content_711013.htm>；国务院 (2008). 劳动合同法实施条例（国务院令第 535 号）第二十条：「用人单位依照劳动合同法第四十条的规定，选择额外支付劳动者一个月工资解除劳动合同的，其额外支付的工资应当按照该劳动者上一个月的工资标准确定」. <http://www.gov.cn/gongbao/content/2008/content_1107604.htm>",
+    "source_links": [
+      "http://www.gov.cn/gongbao/content/2007/content_711013.htm",
+      "http://www.gov.cn/gongbao/content/2008/content_1107604.htm"
+    ]
+  },
+  "医保断缴有什么影响": {
+    "entry_id": "7-18",
+    "text": "社保断缴不要慌：养老按累计算，医保按规则补",
+    "plain": "养老金按累计年限算，断了不清零。到退休年龄累计满 15 年就能按月领，职工养老 2030 年起逐年提到 20 年。职工医保交够年限，退休后不用再交，年限各地不同。断缴影响两样：居民医保重新交上后有段时间不给报，各地买房、落户、积分常要求连续缴费。",
+    "cost": {
+      "money": "0",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "A",
+    "citation": "第 7 节第 18 条（社保断缴不要慌：养老按累计算，医保按规则补）",
+    "source_text": "全国人大常委会 (2010, 2018 修正). 社会保险法（第十六、十九、二十七条）. <https://www.gov.cn/guoqing/2021-10/29/content_5647616.htm>；国务院办公厅 (2024). 关于健全基本医疗保险参保长效机制的指导意见（国办发〔2024〕38 号）. <https://www.gov.cn/zhengce/content/202408/content_6965741.htm>；全国人民代表大会常务委员会 (2024). 关于实施渐进式延迟法定退休年龄的决定（附件《国务院关于渐进式延迟法定退休年龄的办法》第二条）. <https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm>",
+    "source_links": [
+      "https://www.gov.cn/guoqing/2021-10/29/content_5647616.htm",
+      "https://www.gov.cn/zhengce/content/202408/content_6965741.htm",
+      "https://www.gov.cn/yaowen/liebiao/202409/content_6974294.htm"
+    ]
+  },
+  "出国旅行要准备什么": {
+    "entry_id": "21-4",
+    "text": "买一份含境外医疗和医疗转运的保险…",
+    "plain": "在国外看病的钱要自己掏。国内医保基本不报，使领馆也不垫。真正能拖垮一个家的不是门诊费，是重伤以后的住院，还有把人运回国，那得靠专机或者医疗护送。买旅行险主要看两个额度：境外医疗费用，紧急医疗转运与送返。",
+    "cost": {
+      "money": "少",
+      "time": "少",
+      "will": "否"
+    },
+    "benefit": {
+      "level": "大",
+      "metric": "金钱"
+    },
+    "evidence": "C",
+    "citation": "第 21 节第 4 条（买一份含境外医疗和医疗转运的保险，别只买航班延误险）",
+    "source_text": "国务院 (2023). 领事保护与协助条例（国令第 763 号）. <https://www.gov.cn/zhengce/zhengceku/202307/content_6891761.htm>（第二十六条）；美国疾病控制与预防中心. Travelers' Health: Travel Insurance：「Medical evacuation insurance covers emergency transportation from a remote area to a high-quality hospital, which could otherwise cost more than $100,000.」. <https://wwwnc.cdc.gov/travel/page/insurance>；其余为作者经验，无直接文献",
+    "source_links": [
+      "https://www.gov.cn/zhengce/zhengceku/202307/content_6891761.htm",
+      "https://wwwnc.cdc.gov/travel/page/insurance"
+    ]
+  }
+}

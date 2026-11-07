@@ -95,6 +95,18 @@ export function createHandler(deps: HandlerDeps) {
     return retrieve(deps.book.entries, question, 8).candidates.map((entry) => entry.id);
   }
 
+  /** Daily signs expand within their own section; include a few neighbours. */
+  function sectionIds(entryId: string): string[] {
+    const entry = deps.book.entries.find((item) => item.id === entryId);
+    if (!entry) return [entryId];
+    return [...new Set([
+      entryId,
+      ...deps.book.entries
+        .filter((item) => item.section_no === entry.section_no)
+        .map((item) => item.id),
+    ])].slice(0, 8);
+  }
+
   return async function handler(request: Request): Promise<Response> {
     try {
       const url = new URL(request.url);
@@ -117,7 +129,7 @@ export function createHandler(deps: HandlerDeps) {
           const items = dailySigns as DailySign[];
           const item = items.find((entry) => entry.date === today) ?? items[0];
           if (!item) return error("no_daily_sign", 404, "今天还没有签。");
-          const token = await signToken(tokenFor(item.question, item.sign.entry_id, [item.sign.entry_id], deps.now()), deps.env.APP_HMAC_SECRET);
+          const token = await signToken(tokenFor(item.question, item.sign.entry_id, sectionIds(item.sign.entry_id), deps.now()), deps.env.APP_HMAC_SECRET);
           return json({ ok: true, question: item.question, sign: item.sign, signToken: token, disclaimer: DISCLAIMER });
         }
         return error("method_not_allowed", 405, "只支持 POST，或 GET ?action=meta/health/daily。");
@@ -183,7 +195,7 @@ export function createHandler(deps: HandlerDeps) {
         const result = await selectSign(deps.chat, question, candidates);
         if (result.degraded && cached) return fallbackResponse(question, cached, candidates.slice(0, 8).map((entry) => entry.id));
         if (result.mode === "no_match" || !result.sign) {
-          if (cached) return fallbackResponse(question, cached);
+          if (cached) return fallbackResponse(question, cached, retrievalIds(question));
           const response: AskResponse = {
             ok: true, mode: "no_match", question,
             nearest_sections: deps.book.sections.slice(0, 3).map((section) => ({ no: section.no, title: section.title })),

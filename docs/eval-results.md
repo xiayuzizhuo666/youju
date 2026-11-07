@@ -1,6 +1,6 @@
 # 有据 v1 评测结果
 
-- 运行时间：2026-11-07T05:16:31.524Z
+- 运行时间：2026-11-07T15:31:50.063Z
 - 运行模式：**degraded（no-key；degradedSigns=37；fallbackRows=8）**
 - DEEPSEEK_API_KEY：absent（未注入，未使用假 key）
 - 模型：deepseek-chat；模型调用 0 次（key 缺失，eval 客户端短路 127 次；若注入 key，这些就是实际会发出的请求）；累计 input 0 / output 0 token
@@ -30,15 +30,15 @@
 | 三类分流召回 | 5/5（100.0%） | mode=triage 且 kind 与期望一致 |
 | 无匹配精确率 | 0/3（0.0%） | 无关题返回 mode=no_match |
 | 引用失败（严格检查） | 0 条 | eval 专用严格检查：citation 与签对应条目不一致，或签文含被引条目正文不支持的数字/法条；语料排除 entry.id 与 section_no |
-| 延迟（ask 端到端） | p50 4ms / p95 7ms / max 1261ms / avg 29ms | 含 handler 内部全流程，单线程顺序执行 |
-| 展开延迟（expand 端到端） | p50 1ms / p95 2ms / max 3ms / avg 1ms | 对每个带 signToken 的签名行调用 `action:"expand"`；含 handler 内部全流程，单线程顺序执行 |
+| 延迟（ask 端到端） | p50 3ms / p95 6ms / max 992ms / avg 22ms | 含 handler 内部全流程，单线程顺序执行 |
+| 展开延迟（expand 端到端） | p50 1ms / p95 1ms / max 2ms / avg 1ms | 对每个带 signToken 的签名行调用 `action:"expand"`；含 handler 内部全流程，单线程顺序执行 |
 | 展开成功 | 45/45（100.0%） | `ok` 存在、`expand` 存在且 actions 非空 |
 | 展开引用失败（严格检查） | 6 条 | action/avoid 的 citation 与条目不一致，或 action/cost/benefit 含被引条目正文不支持的数字/法条 |
 | 模型 token 用量 | input 0 / output 0 token | 从 `proxyChat` 返回的 usage 累计；无 key 时为 0 |
 | 模型成本估算 | ¥0（无模型调用） | 单价来自 `EVAL_INPUT_PRICE_PER_M` / `EVAL_OUTPUT_PRICE_PER_M`（元/百万 token）；未配置时只报 token |
 
 - 绑定门槛：全量章节召回 **≥ 90%**。本次 47.6%，但本运行已标注 degraded，该数字只作降级基线，不能据此判定模型是否达标。
-- 展开门槛：p95 < 8s。本次 2ms，但本运行已标注 degraded（无 key 时展开走 fallback），不能据此判定模型展开是否达标。
+- 展开门槛：p95 < 8s。本次 1ms，但本运行已标注 degraded（无 key 时展开走 fallback），不能据此判定模型展开是否达标。
 
 模式分布：sign 37 / fallback 8 / triage 5 / no_match 0 / error 0
 
@@ -110,7 +110,7 @@
 - adv-07（7-20）：expand_ok=1，actions=3，issue=7-20:unsupported:第 20 条
 
 > 展开指标对每个签名 token 调用一次 `action:"expand"`。无 key 时展开会走 fallback actions（按书排序，最多 3 条），因此引用通常为真；这不代表模型展开的引用质量，也不能用来判定展开门槛。
-> 严格检查会把产品生成的定位语“先看第 X 节第 Y 条”标为引用失败（严格语料排除了条目编号与章节号），这是保守口径，不是模型编造。
+> 严格检查会把产品 fallback 生成的定位语“先看第 X 节第 Y 条”以及条目标题里的日期（例如“2026 年 9 月 20 日”）标为引用失败：严格语料排除了条目编号、章节号和日期串。这是保守口径，不是模型编造。
 
 ## 人工复核
 

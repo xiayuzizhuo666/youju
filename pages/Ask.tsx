@@ -1,18 +1,22 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SceneCards } from "@/components/SceneCards";
-import { ask } from "@/lib/api";
+import { ask, daily, type DailyResponse } from "@/lib/api";
 import { navigate } from "@/lib/router";
-import dailySigns from "../data/daily-signs.json";
 
 export function AskPage() {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const daily = useMemo(() => {
-    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
-    return dailySigns.find((item) => item.date === today) ?? dailySigns[0];
+  const [dailySign, setDailySign] = useState<DailyResponse | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    daily()
+      .then((data) => { if (alive) setDailySign(data); })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
 
   async function submit(value: string) {
@@ -40,12 +44,10 @@ export function AskPage() {
 
   async function openDaily() {
     try {
-      const response = await fetch("/functions/v1/app?action=daily");
-      const data = await response.json();
-      if (data.ok && data.signToken) navigate(`/sign/${data.signToken}`);
-      else setError(data.message ?? "今日一签暂时打不开。");
-    } catch {
-      setError("今日一签暂时打不开。");
+      const data = await daily();
+      navigate(`/sign/${data.signToken}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "今日一签暂时打不开。");
     }
   }
 
@@ -72,11 +74,11 @@ export function AskPage() {
         {error ? <p className="ask-error" role="alert">{error}</p> : null}
       </section>
 
-      {daily ? (
+      {dailySign ? (
         <button className="daily-sign" onClick={openDaily}>
           <span>今日一签</span>
-          <strong>{daily.sign.text}</strong>
-          <small>{daily.sign.citation}</small>
+          <strong>{dailySign.sign.text}</strong>
+          <small>{dailySign.sign.citation}</small>
         </button>
       ) : null}
 
