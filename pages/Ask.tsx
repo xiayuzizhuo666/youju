@@ -56,7 +56,6 @@ export function AskPage() {
       <header className="book-header">
         <p className="book-kicker">有据</p>
         <h1>你现在在纠结什么？</h1>
-        <p className="book-subtitle">从 772 条有出处的建议里，翻一条给你。</p>
       </header>
 
       <section className="ask-box">

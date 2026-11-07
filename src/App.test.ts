@@ -10,7 +10,10 @@ describe("global footer", () => {
     expect(source).toContain("<p>{DISCLAIMER}</p>");
   });
 
-  it("keeps the attribution and non-official notice", () => {
-    expect(source).toContain("内容来自《高性价比人生指南》，CC BY 4.0，有修改；不是官方版本。");
+  it("links to the answer-book explanation and carries no source attribution", () => {
+    expect(source).toContain('href="/about"');
+    expect(source).toContain("什么是答案之书");
+    expect(source).not.toContain("CC BY 4.0");
+    expect(source).not.toContain("内容来自");
   });
 });
