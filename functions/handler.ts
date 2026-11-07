@@ -6,6 +6,7 @@ import { routeQuestion, selectSign, expandAnswer, type ChatFn } from "./generate
 import { signToken, verifyToken } from "./token.ts";
 import { createLimiter } from "./demo.ts";
 import { proxyChat } from "./providers.ts";
+import { handleAgent } from "./agent.ts";
 import bookJson from "./data/book.json" with { type: "json" };
 import curatedJson from "./data/curated-cache.json" with { type: "json" };
 import dailyJson from "./data/daily-signs.json" with { type: "json" };
@@ -87,6 +88,7 @@ export function createHandler(deps: HandlerDeps) {
       const body = parsed as Record<string, unknown>;
 
       const action = body.action;
+      if (action === "agent") return handleAgent(body, deps);
       if (action === "ask") {
         const question = typeof body.question === "string" ? body.question.trim().slice(0, 200) : "";
         if (!question) return error("missing_question", 400, "请先写下你在纠结的事。");
