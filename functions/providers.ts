@@ -142,7 +142,7 @@ export async function proxyChat(options: ProxyChatOptions): Promise<ProxyChatRes
     stream: false,
   };
 
-  const timeout = AbortSignal.timeout(240_000);
+  const timeout = AbortSignal.timeout(8_000);
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
 
   const call = async (body: Record<string, unknown>) =>
