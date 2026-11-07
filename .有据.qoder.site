@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "name": "有据",
+  "design": {
+    "version": 1,
+    "pages": [
+      {
+        "path": "/",
+        "title": "Home"
+      }
+    ],
+    "capabilities": []
+  },
+  "publication": {
+    "actionId": "d1519475-4c20-445d-9678-0c5c8bb7514e",
+    "projectId": "01a1b497-d2c3-7219-8339-e1d50ed6151b",
+    "siteId": "01a1b497-d2c6-7bf5-bb1a-94cd34f68b7c",
+    "deploymentId": "01a1b6c3-456b-7484-a208-6ed430255a69",
+    "artifactSha256": "1163173065f59123ac17e4ad7942157a9fc7cd0663f1d62df2f3f1739f4f3639",
+    "indexSha256": "7afdaf07d51507f11391c17695d508f5399d74e24730ae72272ee517d73701b3",
+    "indexHtml": "PCFkb2N0eXBlIGh0bWw+CjxodG1sIGxhbmc9InpoLUNOIj4KICA8aGVhZD4KICAgIDxtZXRhIGNoYXJzZXQ9IlVURi04IiAvPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiIC8+CiAgICA8bWV0YSBuYW1lPSJ0aGVtZS1jb2xvciIgY29udGVudD0iI0Y4RjdGNCIgLz4KICAgIDxtZXRhIG5hbWU9ImRlc2NyaXB0aW9uIiBjb250ZW50PSLmnInmja4gwrcg5LiA5pys57uZ5L2g5L6d5o2u55qE562U5qGI5LmL5Lmm44CC6Zeu5LiA5Lu25q2j5Zyo57qg57uT55qE5LqL77yM57+75LiA5p2h5pyJ5Ye65aSE55qE5bu66K6u44CCIiAvPgogICAgPG1ldGEgcHJvcGVydHk9Im9nOnRpdGxlIiBjb250ZW50PSLmnInmja4gwrcg5LiA5pys57uZ5L2g5L6d5o2u55qE562U5qGI5LmL5LmmIiAvPgogICAgPG1ldGEgcHJvcGVydHk9Im9nOmRlc2NyaXB0aW9uIiBjb250ZW50PSLpl67kuIDku7bmraPlnKjnuqDnu5PnmoTkuovvvIznv7vlh7rkuIDmnaHmnInlh7rlpITnmoTlu7rorq7vvIzlkYror4nkvaDoirHku4DkuYjjgIHmjaLku4DkuYjjgIHor4Hmja7lpJrnoazjgIIiIC8+CiAgICA8bGluayByZWw9Imljb24iIGhyZWY9ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgNjQgNjQnJTNFJTNDcmVjdCB3aWR0aD0nNjQnIGhlaWdodD0nNjQnIHJ4PSc4JyBmaWxsPSclMjNGOEY3RjQnLyUzRSUzQ3BhdGggZD0nTTE4IDE4aDI4djI4SDE4eicgZmlsbD0nbm9uZScgc3Ryb2tlPSclMjMxQjFCMUInIHN0cm9rZS13aWR0aD0nMicvJTNFJTNDcGF0aCBkPSdNMjQgMjZoMTZNMjQgMzJoMTZNMjQgMzhoMTAnIHN0cm9rZT0nJTIzQjIzQTJFJyBzdHJva2Utd2lkdGg9JzInLyUzRSUzQy9zdmclM0UiIC8+CiAgICA8dGl0bGU+5pyJ5o2uIMK3IOS4gOacrOe7meS9oOS+neaNrueahOetlOahiOS5i+S5pjwvdGl0bGU+CiAgICA8c2NyaXB0IHR5cGU9Im1vZHVsZSIgY3Jvc3NvcmlnaW4gc3JjPSIvYXNzZXRzL2luZGV4LURESjhBakFVLmpzIj48L3NjcmlwdD4KICAgIDxsaW5rIHJlbD0ic3R5bGVzaGVldCIgY3Jvc3NvcmlnaW4gaHJlZj0iL2Fzc2V0cy9pbmRleC1EdGR1alVLcy5jc3MiPgogIDwvaGVhZD4KICA8Ym9keT4KICAgIDxkaXYgaWQ9InJvb3QiPjwvZGl2PgogIDwvYm9keT4KPC9odG1sPgo=",
+    "releaseId": "01a1b6c3-a537-7357-b413-a10e546e3b5c"
+  }
+}
