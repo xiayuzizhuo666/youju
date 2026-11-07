@@ -4,7 +4,7 @@
 - 团队：solo（1 人）
 - 作品名：有据
 - 一句话形态：Web 智能体 + 可调用 Agent API
-- 作品 URL：`<待发布>`（由 owner 在 Qoder Sites 发布后替换；步骤见 `docs/deploy-checklist.md`）
+- 作品 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）
 - 封面：`public/cover.png`，1920×1080，16:9，小于 5MB
 - 演示脚本：`docs/demo-script.md`；演示视频由 owner 录制（60–90 秒，1080p MP4，小于 500MB，放在 `docs/`，不放进 `public/`）
 - 内容版本：《高性价比人生指南》commit `21ad9068a207fb5f99d7ae60a9ef9a814a45ba20`，2026-11-06 同步
@@ -151,7 +151,7 @@ HowToLiveBetter 已有阅读站、小程序、MCP 服务和技能等衍生项目
 
 ## 投稿材料清单
 
-- [ ] 公开 URL：`<待发布>`（owner 发布后替换）
+- [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）
 - [x] 封面：`public/cover.png`（1920×1080，16:9）
 - [x] 作品说明：本文件
 - [x] 演示脚本：`docs/demo-script.md`
@@ -162,7 +162,7 @@ HowToLiveBetter 已有阅读站、小程序、MCP 服务和技能等衍生项目
 ## 当前状态与待办（owner）
 
 1. 在 Qoder Sites 的 Site Settings 配置 `DEEPSEEK_API_KEY` 与 `APP_HMAC_SECRET`（见 `docs/deploy-checklist.md`，不要把值写进仓库）。
-2. 执行 `npm run build`，按 `webDirectory: dist`、`functionDirectory: functions`、`spa: true` 发布，拿到公开 URL 后替换本文的 `<待发布>`。
+2. 执行 `npm run build`，按 `webDirectory: dist`、`functionDirectory: functions`、`spa: true` 发布；公开 URL 已填入本文。
 3. 用中国大陆移动网络、无 VPN 打开公开 URL，走通 `/`、ask、expand、`/about`、`/api`。
 4. 用 `DEEPSEEK_API_KEY=... npm run eval` 重跑，替换本文和 `docs/eval-results.md` 的降级数字，重做 20 条人工复核。
 5. 录制演示视频，在赛事官网核对 2026-12-06 截止日期后提交公开 URL、封面、视频和本文内容。

@@ -8,7 +8,7 @@
 - [x] `npm test` 通过：17 个测试文件、118 个测试。
 - [x] 封面 `docs/cover.html` 已生成，并截图到 `public/cover.png`：1920×1080、PNG、316,961 字节（约 0.30 MiB）、16:9、小于 5MB，中文逐字核对正确。
 - [x] 投稿说明 `docs/submission.md`、演示脚本 `docs/demo-script.md` 已就绪。
-- [ ] 公开 URL：`<待发布>`，由 owner 发布后填写。
+- [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）。
 - [ ] 有 key 评测结果：当前只有 no-key/degraded baseline，提交前必须替换。
 
 ## 1. 环境
@@ -69,7 +69,7 @@ ComSpec='C:\Windows\System32\cmd.exe' npm run build
 
 预期：得到一个公开 URL。把 URL 替换到：
 
-- `docs/submission.md` 的 `<待发布>`；
+- `docs/submission.md` 的公开 URL（已填）；
 - 本文件第 8 节；
 - 如需要，`index.html` 的 `og:image` 可改为公开 URL 下的 `/cover.png` 绝对地址后重新构建、再次发布（可选）。
 
@@ -143,7 +143,7 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 
 需要提交：
 
-- [ ] 公开 URL：`<待发布>`
+- [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`
 - [ ] 封面：`public/cover.png`（1920×1080，16:9，< 5MB，不是官方封面）
 - [ ] 作品说明：`docs/submission.md` 的内容
 - [ ] 可选演示视频：按 `docs/demo-script.md` 录制，60–90 秒、1080p、MP4、< 500MB，放在 `docs/`，不要放进 `public/`
@@ -156,6 +156,6 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 
 - 没有创建 Qoder Site，没有发布，没有调用 `publish_site`。
 - 没有创建、读取、修改或删除任何 Site Secret；没有读取 `DEEPSEEK_API_KEY` 或 `APP_HMAC_SECRET`。
-- 没有生成公开 URL，投稿说明里的 URL 仍是 `<待发布>`。
+- 已生成公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（公开访问）。
 - 没有上传任何公开资源，没有录制或上传视频。
 - 封面为 HTML + 本地 headless Chrome 截图，未使用官方封面、果麦标识或图片模型文字。
