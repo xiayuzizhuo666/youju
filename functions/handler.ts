@@ -51,7 +51,7 @@ function triageMessage(kind: "emergency" | "suicide" | "legal"): { message: stri
 export function createHandler(deps: HandlerDeps) {
   async function fallbackResponse(question: string, sign: SignPayload): Promise<Response> {
     const token = await signToken({ q: question, s: sign, c: [sign.entry_id], exp: deps.now() + 20 * 60_000 }, deps.env.APP_HMAC_SECRET);
-    return json({ ok: true, mode: "fallback", question, sign, signToken: token, disclaimer: DISCLAIMER } satisfies AskResponse);
+    return json({ ok: true, mode: "fallback", question, sign, signToken: token, degraded: true, disclaimer: DISCLAIMER } satisfies AskResponse);
   }
 
   return async function handler(request: Request): Promise<Response> {
@@ -136,7 +136,7 @@ export function createHandler(deps: HandlerDeps) {
         const candidateIds = [...new Set([result.sign.entry_id, ...result.candidates])];
         const payload: SignTokenPayload = { q: question, s: result.sign, c: candidateIds, exp: deps.now() + 20 * 60_000 };
         const token = await signToken(payload, deps.env.APP_HMAC_SECRET);
-        const response: AskResponse = { ok: true, mode: "sign", question, sign: result.sign, signToken: token, disclaimer: DISCLAIMER };
+        const response: AskResponse = { ok: true, mode: "sign", question, sign: result.sign, signToken: token, degraded: result.degraded, disclaimer: DISCLAIMER };
         return json(response);
       }
 

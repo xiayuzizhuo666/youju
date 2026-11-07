@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createHandler } from "./handler";
 import { createLimiter } from "./demo";
-import type { BookData } from "../shared/types";
+import type { BookData, SignPayload } from "../shared/types";
 import type { ChatFn } from "./generate";
 
 const book: BookData = {
@@ -31,13 +31,13 @@ const chat: ChatFn = async (messages) => {
   return JSON.stringify({ actions: [{ entry_id: "15-1", action: "先看合同", cost: "不花钱", benefit: "中", evidence: "A" }], avoid: [], not_covered: "", refer: "", recheck: "" });
 };
 
-function makeHandler() {
+function makeHandler(chatOverride: ChatFn = chat, curated: Record<string, SignPayload> = {}) {
   return createHandler({
-    book, chat, now: () => Date.now(),
+    book, chat: chatOverride, now: () => Date.now(),
     env: { APP_HMAC_SECRET: "test" },
     limiter: createLimiter({ maxPerIp: 10, maxGlobal: 10 }),
     expandLimiter: createLimiter({ maxPerIp: 10, maxGlobal: 10 }),
-    curated: {},
+    curated,
   });
 }
 
@@ -52,7 +52,32 @@ describe("handler", () => {
     const body = await response.json();
     expect(body.mode).toBe("sign");
     expect(body.sign.entry_id).toBe("15-1");
+    expect(body.degraded).toBe(false);
     expect(typeof body.signToken).toBe("string");
+  });
+
+  it("marks a sign degraded when generation falls back", async () => {
+    const failingChat: ChatFn = async (messages) => {
+      if (messages[0].content.includes("章节路由")) return JSON.stringify({ sections: [15], confidence: 0.9 });
+      throw new Error("model down");
+    };
+    const body = await makeHandler(failingChat)(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    expect(body.mode).toBe("sign");
+    expect(body.sign.entry_id).toBe("15-1");
+    expect(body.degraded).toBe(true);
+  });
+
+  it("marks a curated fallback response degraded", async () => {
+    const failingChat: ChatFn = async () => { throw new Error("model down"); };
+    const cached = {
+      entry_id: "15-1", text: "房东不退押金", plain: "押金应当退还。",
+      cost: { money: "0", time: "少", will: "否" }, benefit: { level: "中", metric: "金钱" },
+      evidence: "A" as const, citation: "第 15 节第 1 条（房东不退押金）",
+      source_text: "民法典. <https://example.com>", source_links: ["https://example.com"],
+    };
+    const body = await makeHandler(failingChat, { "房东不退押金怎么办": cached })(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    expect(body.mode).toBe("fallback");
+    expect(body.degraded).toBe(true);
   });
 
   it("triages emergencies before retrieval", async () => {

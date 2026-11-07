@@ -22,6 +22,7 @@ interface AskBody {
   sign?: SignPayload;
   triage?: { kind?: string };
   nearest_sections?: { no: number; title: string }[];
+  degraded?: boolean;
   error?: string;
   message?: string;
 }
@@ -31,6 +32,7 @@ interface EvalRow {
   category: string;
   question: string;
   mode: string;
+  degraded: boolean;
   sectionOk: "1" | "0" | "n/a";
   triageOk: "1" | "0" | "n/a";
   noMatchOk: "1" | "0" | "n/a";
@@ -44,8 +46,6 @@ interface EvalRow {
   citationIssue: string;
   triageKind: string;
   detail: string;
-  humanSignOk: string;
-  humanNote: string;
 }
 
 const root = resolve(import.meta.dirname, "..");
@@ -56,13 +56,17 @@ const curated = JSON.parse(readFileSync(join(root, "functions", "data", "curated
 const apiKey = (process.env.DEEPSEEK_API_KEY ?? "").trim();
 const model = (process.env.DEEPSEEK_MODEL ?? "").trim() || "deepseek-chat";
 const keyPresent = apiKey.length > 0;
+let modelAttempts = 0;
 let modelCalls = 0;
 let modelFailures = 0;
 
 const chat: ChatFn = async (messages, options) => {
+  // Count every call the generation layer attempts, including calls short-circuited
+  // without a key, so the report can state the real request count instead of a guess.
+  modelAttempts += 1;
   // Without a key the generation layer must degrade exactly like it would in a
-  // deployment with no key, but we short-circuit instead of sending 80+ doomed
-  // network requests. Do not fabricate a key here.
+  // deployment with no key, but we short-circuit instead of sending every attempt
+  // as a doomed network request. Do not fabricate a key here.
   if (!keyPresent) throw new Error("DEEPSEEK_API_KEY_absent");
   modelCalls += 1;
   try {
@@ -111,6 +115,20 @@ if (scenarioCount !== 37) throw new Error(`eval set must contain 37 scenario que
 if (noMatchCount !== 3) throw new Error(`eval set must contain 3 no_match questions, found ${noMatchCount}`);
 if (adversarialCount !== 10) throw new Error(`eval set must contain 10 adversarial questions, found ${adversarialCount}`);
 if (triageCount !== 5) throw new Error(`eval set must contain 5 triage questions, found ${triageCount}`);
+if (signEvaluable.length !== 42) throw new Error(`eval set must contain 42 sign-evaluable questions, found ${signEvaluable.length}`);
+const questionIds = questions.map((item) => item.id);
+if (new Set(questionIds).size !== questionIds.length) {
+  const duplicates = questionIds.filter((id, index) => questionIds.indexOf(id) !== index);
+  throw new Error(`eval set ids must be unique, duplicated: ${duplicates.join(", ")}`);
+}
+const bookSectionNos = new Set(book.sections.filter((section) => section.entries.length > 0).map((section) => section.no));
+for (const item of questions) {
+  for (const sectionNo of item.sections) {
+    if (!bookSectionNos.has(sectionNo)) {
+      throw new Error(`eval question ${item.id} expects section ${sectionNo}, which is missing or empty in data/book.json`);
+    }
+  }
+}
 
 const rows: EvalRow[] = [];
 const latencies: number[] = [];
@@ -119,6 +137,8 @@ let sectionHits = 0;
 let triageHits = 0;
 let noMatchHits = 0;
 let citationFailures = 0;
+let degradedSigns = 0;
+let fallbackRows = 0;
 
 for (const item of questions) {
   const started = performance.now();
@@ -137,7 +157,10 @@ for (const item of questions) {
   latencies.push(latencyMs);
 
   const mode = body.mode ?? "error";
+  const degradedRow = body.degraded === true;
   modeCounts.set(mode, (modeCounts.get(mode) ?? 0) + 1);
+  if (mode === "fallback") fallbackRows += 1;
+  if (mode === "sign" && degradedRow) degradedSigns += 1;
   const sign = body.sign;
   const entry = sign ? book.entries.find((candidate) => candidate.id === sign.entry_id) : undefined;
 
@@ -169,8 +192,11 @@ for (const item of questions) {
     if (!sign.citation) issues.push("citation_empty");
     else if (entry && sign.citation !== citationFor(entry)) issues.push("citation_mismatch");
     if (entry) {
-      const unsupported = unsupportedClaims(sign.text, [entry]);
-      if (unsupported.length > 0) issues.push(`text_unsupported:${unsupported.join("|")}`);
+      // Eval-only strict check: excludes entry.id / section_no and date spans from
+      // the support corpus, so an amount cannot be "supported" by the entry number
+      // (the known product-guard false negative for entry 15-1 and "可以退 15 万").
+      const unsupported = unsupportedClaims(sign.text, [entry], { strict: true });
+      if (unsupported.length > 0) issues.push(`text_unsupported_strict:${unsupported.join("|")}`);
     }
     citationOk = issues.length === 0 ? "1" : "0";
     citationIssue = issues.join(";");
@@ -190,6 +216,7 @@ for (const item of questions) {
     category: item.category,
     question: item.question,
     mode,
+    degraded: degradedRow,
     sectionOk,
     triageOk,
     noMatchOk,
@@ -203,8 +230,6 @@ for (const item of questions) {
     citationIssue,
     triageKind: body.triage?.kind ?? "",
     detail,
-    humanSignOk: "",
-    humanNote: "",
   });
 }
 
@@ -244,26 +269,43 @@ const noMatchLines = rows.filter((row) => row.noMatchOk !== "n/a")
   .map((row) => `- ${row.id}：${row.noMatchOk === "1" ? "正确 no_match" : `未走 no_match（mode=${row.mode}，签=${row.signText}）`}`)
   .join("\n");
 
-const degraded = !keyPresent || modelFailures > 0;
-const modeLabel = !keyPresent
-  ? "no-key/degraded baseline"
-  : modelFailures > 0
-    ? "degraded（key 存在但模型调用失败）"
-    : "model-validated";
+const modelSignRows = rows.filter((row) => row.sectionOk !== "n/a" && row.mode === "sign" && !row.degraded);
+const modelSignHits = modelSignRows.filter((row) => row.sectionOk === "1").length;
+const modelSignRecall = modelSignRows.length === 0 ? "0/0（无模型签行，n/a）" : pct(modelSignHits, modelSignRows.length);
+
+const scenarioCategories = new Set(["租房", "工作", "钱", "健康", "关系", "安全"]);
+const scenarioTriage = questions.filter((item) => item.triage && scenarioCategories.has(item.category));
+const scenarioTriageIds = scenarioTriage.map((item) => item.id).join("、");
+const adversarialTriageIds = questions.filter((item) => item.triage && item.category === "对抗").map((item) => item.id).join("、");
+
+const degradedCauses: string[] = [];
+if (!keyPresent) degradedCauses.push("no-key");
+if (modelFailures > 0) degradedCauses.push(`modelFailures=${modelFailures}`);
+if (degradedSigns > 0) degradedCauses.push(`degradedSigns=${degradedSigns}`);
+if (fallbackRows > 0) degradedCauses.push(`fallbackRows=${fallbackRows}`);
+const modelValidated = keyPresent && modelFailures === 0 && degradedSigns === 0 && fallbackRows === 0;
+const degraded = !modelValidated;
+const modeLabel = modelValidated ? "model-validated" : `degraded（${degradedCauses.join("；")}）`;
 const keyLabel = keyPresent ? "present（值未记录）" : "absent（未注入，未使用假 key）";
 const modelLine = keyPresent
-  ? `- 模型：${model}；模型调用 ${modelCalls} 次，失败 ${modelFailures} 次`
-  : `- 模型：${model}；模型调用 0 次（key 缺失，客户端直接短路，不发网络请求）`;
+  ? `- 模型：${model}；发起模型调用 ${modelCalls} 次，失败 ${modelFailures} 次`
+  : `- 模型：${model}；模型调用 0 次（key 缺失，eval 客户端短路 ${modelAttempts} 次；若注入 key，这些就是实际会发出的请求）`;
 
-const degradedNotes = !keyPresent
-  ? `- 本报告是 **no-key/degraded baseline**：路由与选签的模型调用全部失败，handler 降级为 curated 命中或 BM25 top-1 兜底。
+const noKeyNotes = !keyPresent
+  ? `- 本报告是 **no-key/degraded baseline**：\`DEEPSEEK_API_KEY\` 缺失，路由与选签的模型调用全部抛错，handler 降级为 curated 命中或 BM25 top-1 兜底。
 - 因此 \`mode=fallback\` 的行是 curated 兜底，\`mode=sign\` 的行实际也是 BM25 兜底签；这些数字**不代表 DeepSeek 模型效果**。
 - 无匹配在降级路径下结构性失效：没有模型判定，BM25 对无关问题也会返回候选，handler 只会给出兜底签，所以无关题全部未走 \`no_match\`。这是降级路径的已知缺陷，不是模型评测结论。
-- 章节召回的分母是全部 ${signEvaluable.length} 道可评分签题；降级运行时，非 sign 的模式也按未命中计。
 - 延迟包含 BM25 对全量 ${book.entries.length} 条条目建索引的开销（模型调用失败后 confidence=0，退回全量检索），比正常有 key 的窄检索路径慢，不能当作线上延迟。`
-  : modelFailures > 0
-    ? `- 本次运行中 ${modelFailures}/${modelCalls} 次模型调用失败，相关题目走了 curated/BM25 兜底，指标已被污染。`
-    : "- 本次运行使用真实 DeepSeek 调用，每个 ask 的 \`sign\` 由模型路由/选签产生。";
+  : "";
+const degradedNotes = modelValidated
+  ? "- 本次运行使用真实 DeepSeek 调用，没有 `degraded=true` 的 sign 行、没有 `mode=fallback` 行，也没有模型调用失败。"
+  : `${noKeyNotes}
+- 降级计数：modelFailures=${modelFailures}，degradedSigns=${degradedSigns}（mode=sign 且 degraded=true），fallbackRows=${fallbackRows}（mode=fallback）。由此本运行标注为 **degraded**，不标注 model-validated。`;
+
+const sectionRate = signEvaluable.length === 0 ? 0 : sectionHits / signEvaluable.length * 100;
+const gateLine = modelValidated
+  ? `- 绑定门槛：全量章节召回 **≥ 90%**。本次 ${sectionRate.toFixed(1)}%，${sectionRate >= 90 ? "达标" : "**未达标**"}。`
+  : `- 绑定门槛：全量章节召回 **≥ 90%**。本次 ${sectionRate.toFixed(1)}%，但本运行已标注 degraded，该数字只作降级基线，不能据此判定模型是否达标。`;
 
 const report = `# 有据 v1 评测结果
 
@@ -277,9 +319,9 @@ ${degradedNotes}
 ## 题集构成
 
 - 总题量：${questions.length}
-- 场景题：${scenarioCount}（其中 ${questions.filter((item) => ["租房", "工作", "钱", "健康", "关系", "安全"].includes(item.category) && item.triage).length} 题期望安全分流：health-07、relation-07）
+- 场景题：${scenarioCount}（其中 ${scenarioTriage.length} 题期望安全分流${scenarioTriageIds ? `：${scenarioTriageIds}` : ""}）
 - 无关题（no_match）：${noMatchCount}
-- 对抗题：${adversarialCount}（其中 ${questions.filter((item) => item.category === "对抗" && item.triage).length} 题期望分流：adv-01、adv-02、adv-10）
+- 对抗题：${adversarialCount}（其中 ${questions.filter((item) => item.category === "对抗" && item.triage).length} 题期望分流${adversarialTriageIds ? `：${adversarialTriageIds}` : ""}）
 - 期望分流合计：${triageCount}
 - 可评分签题（非分流、非无关、有期望章节）：${signEvaluable.length}
 
@@ -287,11 +329,14 @@ ${degradedNotes}
 
 | 指标 | 结果 | 定义 |
 | --- | --- | --- |
-| 章节召回 | ${pct(sectionHits, signEvaluable.length)} | 签所在章节 ∈ 期望章节；no_match/error 按未命中计 |
+| 章节召回（全部签行） | ${pct(sectionHits, signEvaluable.length)} | 签所在章节 ∈ 期望章节；分母为全部 ${signEvaluable.length} 道可评分签题；**包含 mode=fallback 的签名**，no_match/error 按未命中计 |
+| 章节召回（仅模型签行） | ${modelSignRecall} | 分母 ${modelSignRows.length}，只计 mode=sign 且未标记 degraded 的行，排除 mode=fallback 与 degraded=true |
 | 三类分流召回 | ${pct(triageHits, triageCount)} | mode=triage 且 kind 与期望一致 |
 | 无匹配精确率 | ${pct(noMatchHits, noMatchCount)} | 无关题返回 mode=no_match |
-| 引用失败 | ${citationFailures} 条 | citation 与签对应条目不一致，或签文含该条目不支持的数字/法条 |
+| 引用失败（严格检查） | ${citationFailures} 条 | eval 专用严格检查：citation 与签对应条目不一致，或签文含被引条目正文不支持的数字/法条；语料排除 entry.id 与 section_no |
 | 延迟（ask 端到端） | p50 ${percentile(0.5)}ms / p95 ${percentile(0.95)}ms / max ${sorted[sorted.length - 1] ?? 0}ms / avg ${average}ms | 含 handler 内部全流程，单线程顺序执行 |
+
+${gateLine}
 
 模式分布：${modeLine}
 
@@ -313,13 +358,16 @@ ${triageLines}
 
 ${noMatchLines}
 
-## 引用失败
+## 引用失败（严格检查）
 
 ${citationFailureLines}
 
+> 严格检查在 eval 中独立于产品守卫：支持语料排除 \`entry.id\` 与 \`entry.section_no\`（并剔除日期串），因此“可以退 15 万”这类仅靠条目编号 15-1 或发布日期里的 15 “过关”的文本会被标出。产品守卫 \`unsupportedClaims\` 仍把 ID/章节号算作支持证据，这是已知盲点；本报告不采用其判定。
+
 ## 人工复核
 
-签文是否“合理且有引用支持”需要人工判断。逐行结果见 \`docs/eval-review.csv\`（\`sign_text\`、\`citation\`、\`entry_id\`、\`section_no\` 列），对前 20 条签行在 \`human_sign_ok\` 列打 0/1，并把汇总写入本节。
+- 签文是否“合理且有引用支持”需要人工判断；机器结果逐行见 \`docs/eval-review.csv\`（保留 \`sign_text\`、\`citation\`、\`entry_id\`、\`section_no\` 列供复核）。
+- 人工 20 行评分与理由单独保存在 \`docs/eval-human-review.md\`，eval 重跑不会覆盖该文件。该评分针对 d668ccb 的 no-key 降级基线，不是 DeepSeek 模型质量；有 key 重跑后需重新人工复核。
 `;
 
 mkdirSync(join(root, "docs"), { recursive: true });
@@ -327,16 +375,16 @@ writeFileSync(join(root, "docs", "eval-results.md"), report);
 
 const csv = (value: unknown) => `"${String(value ?? "").replaceAll('"', '""')}"`;
 const header = [
-  "id", "category", "question", "mode", "section_ok", "triage_ok", "no_match_ok",
+  "id", "category", "question", "mode", "degraded", "section_ok", "triage_ok", "no_match_ok",
   "sign_text", "citation", "latency_ms", "entry_id", "section_no", "expected_sections",
-  "citation_ok", "citation_issue", "triage_kind", "detail", "human_sign_ok", "human_note",
+  "citation_ok", "citation_issue", "triage_kind", "detail",
 ];
 const csvRows = rows.map((row) => [
-  row.id, row.category, row.question, row.mode, row.sectionOk, row.triageOk, row.noMatchOk,
+  row.id, row.category, row.question, row.mode, row.degraded, row.sectionOk, row.triageOk, row.noMatchOk,
   row.signText, row.citation, row.latencyMs, row.entryId, row.sectionNo, row.expectedSections,
-  row.citationOk, row.citationIssue, row.triageKind, row.detail, row.humanSignOk, row.humanNote,
+  row.citationOk, row.citationIssue, row.triageKind, row.detail,
 ].map(csv).join(","));
 writeFileSync(join(root, "docs", "eval-review.csv"), [header.map(csv).join(","), ...csvRows].join("\n"));
 
 console.log(report);
-if (degraded) console.warn("eval_degraded_run", { keyPresent, modelCalls, modelFailures });
+if (degraded) console.warn("eval_degraded_run", { keyPresent, modelCalls, modelFailures, degradedSigns, fallbackRows });

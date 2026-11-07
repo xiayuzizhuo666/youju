@@ -44,12 +44,21 @@ function containsToken(corpus: string, token: string): boolean {
   return corpus.includes(token);
 }
 
-export function unsupportedClaims(text: string, entries: BookEntry[]): string[] {
-  const corpus = entries
+export interface UnsupportedClaimOptions {
+  /**
+   * Eval-only strict mode. Drops entry.id, entry.section_no, and date spans
+   * (for example "2025 年 9 月 15 日") from the support corpus so a quantity in
+   * the sign text can only be supported by substantive entry text, not by the
+   * entry identifier or a publication date. Product callers use the default.
+   */
+  strict?: boolean;
+}
+
+export function unsupportedClaims(text: string, entries: BookEntry[], options: UnsupportedClaimOptions = {}): string[] {
+  let corpus = entries
     .map((entry) =>
       [
-        entry.id,
-        String(entry.section_no),
+        ...(options.strict ? [] : [entry.id, String(entry.section_no)]),
         entry.title,
         entry.cost_text,
         entry.plain,
@@ -67,6 +76,7 @@ export function unsupportedClaims(text: string, entries: BookEntry[]): string[] 
     )
     .join("|")
     .replace(/\s+/g, "");
+  if (options.strict) corpus = corpus.replace(/\d{4}年\d{1,2}月(?:\d{1,2}日)?/g, "|");
   // Law references are reported in their original wording (whitespace runs collapsed),
   // and their spans are removed before the number scan so an article is not reported twice.
   const lawMatches = (text.match(LAW) ?? []).map((law) => law.replace(/\s+/g, " "));

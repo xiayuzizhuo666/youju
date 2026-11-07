@@ -87,6 +87,8 @@ export interface AskResponse {
   signToken?: string;
   triage?: { kind: "emergency" | "suicide" | "legal"; message: string; citation?: string };
   nearest_sections?: { no: number; title: string }[];
+  /** True when the answer came from a generation-layer fallback, not the model. */
+  degraded?: boolean;
   disclaimer: string;
 }
 

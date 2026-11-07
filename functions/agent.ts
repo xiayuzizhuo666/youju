@@ -52,7 +52,7 @@ export async function handleAgent(body: Record<string, unknown>, deps: HandlerDe
     const selected = await selectSign(deps.chat, question, candidates);
     if (selected.mode !== "sign" || !selected.sign) return json({ ok: true, result: { mode: "no_match", disclaimer: DISCLAIMER } });
     const expand = await expandAnswer(deps.chat, question, selected.sign, candidates);
-    return json({ ok: true, result: { mode: "sign", sign: selected.sign, expand, disclaimer: DISCLAIMER } });
+    return json({ ok: true, result: { mode: "sign", sign: selected.sign, degraded: selected.degraded, expand, disclaimer: DISCLAIMER } });
   }
 
   return json({ ok: false, error: "unknown_tool", message: "未知工具。" }, 400);

@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { classifyTriage, hasVerdict, unsupportedClaims } from "./guard";
-import type { BookEntry } from "../shared/types";
+import type { BookData, BookEntry } from "../shared/types";
 
 const baseEntry: BookEntry = {
   id: "15-1", section_no: 15, section_title: "租房与买房", item_no: 1,
@@ -89,5 +91,22 @@ describe("citation regression: digit boundaries", () => {
   it("matches supported law citations regardless of spacing", () => {
     const entry = withSource("民法典第 999 条。");
     expect(unsupportedClaims("第999条", [entry])).toEqual([]);
+  });
+});
+
+describe("citation strict regression (eval-only corpus)", () => {
+  const book = JSON.parse(readFileSync(join(import.meta.dirname, "..", "data", "book.json"), "utf8")) as BookData;
+  const entry = book.entries.find((candidate) => candidate.id === "15-1")!;
+
+  it("flags an amount that only matches the entry id/section or a source date", () => {
+    // The product guard accepts this because the corpus contains entry.id "15-1"
+    // (and the source date "2025 年 9 月 15 日"); the strict checker must not.
+    expect(unsupportedClaims("可以退 15 万", [entry])).toEqual([]);
+    expect(unsupportedClaims("可以退 15 万", [entry], { strict: true })).toEqual(["15"]);
+  });
+
+  it("still allows a number supported by the entry text", () => {
+    expect(unsupportedClaims("国令第 812 号", [entry], { strict: true })).toEqual([]);
+    expect(unsupportedClaims("第 8 节第 22 条", [entry], { strict: true })).toEqual([]);
   });
 });
