@@ -6,12 +6,14 @@ import { ShareCard } from "@/components/ShareCard";
 import { sign as fetchSign } from "@/lib/api";
 import { decodeSignToken } from "@/lib/token";
 import { downloadShareCard } from "@/lib/share";
+import { history } from "@/lib/history";
 import { navigate } from "@/lib/router";
 import type { SignPayload } from "../shared/types";
 
 interface SignState {
   sign: SignPayload;
   question: string;
+  degraded: boolean;
 }
 
 export function SignPage({ token }: { token: string }) {
@@ -20,6 +22,7 @@ export function SignPage({ token }: { token: string }) {
   const envelope = useMemo(() => decodeSignToken(token), [token]);
   const [state, setState] = useState<SignState | null>(null);
   const [error, setError] = useState("");
+  const recordedToken = useRef("");
   const shareRef = useRef<HTMLDivElement>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState("");
@@ -31,7 +34,12 @@ export function SignPage({ token }: { token: string }) {
     setError("");
     fetchSign(token)
       .then((result) => {
-        if (alive) setState({ sign: result.sign, question: result.question });
+        if (!alive) return;
+        setState({ sign: result.sign, question: result.question, degraded: result.degraded === true });
+        if (recordedToken.current !== token) {
+          recordedToken.current = token;
+          history.record(result.question, result.sign);
+        }
       })
       .catch((err) => {
         if (!alive) return;
@@ -89,6 +97,9 @@ export function SignPage({ token }: { token: string }) {
       <BookFlip>
         <SignCard sign={state.sign} question={state.question} />
       </BookFlip>
+      {state.degraded ? (
+        <p className="degraded-note" role="status">模型这次没接上，这张签是按书里的排序兜底的。</p>
+      ) : null}
       <div className="sign-actions">
         <Button size="lg" onClick={() => navigate(`/expand/${token}`)}>展开这本账</Button>
         <Button variant="outline" disabled={sharing} onClick={handleShare}>

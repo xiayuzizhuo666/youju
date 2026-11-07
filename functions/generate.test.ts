@@ -60,5 +60,6 @@ describe("generate", () => {
     const result = await expandAnswer(badChat, "房东不退押金", sign, [entry]);
     expect(result.actions).toHaveLength(1);
     expect(result.actions[0].entry_id).toBe("15-1");
+    expect(result.degraded).toBe(true);
   });
 });

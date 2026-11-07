@@ -8,6 +8,7 @@ describe("parseRoute", () => {
     expect(parseRoute("/expand/abc.def")).toEqual({ name: "expand", token: "abc.def" });
     expect(parseRoute("/about")).toEqual({ name: "about" });
     expect(parseRoute("/api")).toEqual({ name: "api" });
+    expect(parseRoute("/history")).toEqual({ name: "history" });
     expect(parseRoute("/unknown")).toEqual({ name: "ask" });
   });
 });

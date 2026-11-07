@@ -5,7 +5,8 @@ export type Route =
   | { name: "sign"; token: string }
   | { name: "expand"; token: string }
   | { name: "about" }
-  | { name: "api" };
+  | { name: "api" }
+  | { name: "history" };
 
 export function parseRoute(pathname: string): Route {
   const parts = pathname.replace(/\/+$/, "").split("/").filter(Boolean);
@@ -14,6 +15,7 @@ export function parseRoute(pathname: string): Route {
   if (parts[0] === "expand" && parts[1]) return { name: "expand", token: decodeURIComponent(parts[1]) };
   if (parts[0] === "about") return { name: "about" };
   if (parts[0] === "api") return { name: "api" };
+  if (parts[0] === "history") return { name: "history" };
   return { name: "ask" };
 }
 

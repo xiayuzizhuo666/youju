@@ -28,7 +28,14 @@ const chat: ChatFn = async (messages) => {
   const system = messages[0].content;
   if (system.includes("章节路由")) return JSON.stringify({ sections: [15], confidence: 0.9 });
   if (system.includes("翻书人")) return JSON.stringify({ mode: "sign", sign: { entry_id: "15-1", text: "先看合同里的押金条款" }, candidates: ["15-1"] });
-  return JSON.stringify({ actions: [{ entry_id: "15-1", action: "先看合同", cost: "不花钱", benefit: "中", evidence: "A" }], avoid: [], not_covered: "", refer: "", recheck: "" });
+  return JSON.stringify({
+    actions: [
+      { entry_id: "15-1", action: "先看合同", cost: "不花钱", benefit: "中", evidence: "A" },
+      { entry_id: "15-1", action: "保留押金凭证", cost: "不花钱", benefit: "中", evidence: "A" },
+      { entry_id: "15-1", action: "书面催告", cost: "不花钱", benefit: "中", evidence: "A" },
+    ],
+    avoid: [], not_covered: "", refer: "", recheck: "",
+  });
 };
 
 function makeDeps(overrides: Partial<HandlerDeps> = {}): HandlerDeps {
@@ -51,6 +58,8 @@ describe("agent", () => {
     expect(body.ok).toBe(true);
     expect(body.result.sign.entry_id).toBe("15-1");
     expect(body.result.expand.actions.length).toBeGreaterThan(0);
+    expect(body.result.expand.degraded).toBe(false);
+    expect(body.result.degraded).toBe(false);
     expect(body.result.disclaimer).toContain("不替代医生、律师、会计");
   });
 
@@ -107,6 +116,27 @@ describe("agent", () => {
     );
     expect(response.status).toBe(200);
     expect(keys).toEqual(["203.0.113.7"]);
+  });
+
+  it("uses its own quota instead of the web ask quota", async () => {
+    const web = { allow: () => false, remaining: () => 0 };
+    const agent = { allow: () => true, remaining: () => 1 };
+    const response = await handleAgent(
+      { tool: "ask_life_question", input: { question: "房东不退押金怎么办" } },
+      makeDeps({ limiter: web, agentLimiter: agent }),
+      "203.0.113.7",
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("adds Retry-After when the agent quota is exhausted", async () => {
+    const agent = { allow: () => false, remaining: () => 0, retryAfterMs: () => 120_000 };
+    const response = await handleAgent(
+      { tool: "ask_life_question", input: { question: "房东不退押金怎么办" } },
+      makeDeps({ agentLimiter: agent }),
+    );
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("120");
   });
 
   it("rejects an unknown tool", async () => {

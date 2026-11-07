@@ -28,7 +28,14 @@ const chat: ChatFn = async (messages) => {
   const system = messages[0].content;
   if (system.includes("章节路由")) return JSON.stringify({ sections: [15], confidence: 0.9 });
   if (system.includes("翻书人")) return JSON.stringify({ mode: "sign", sign: { entry_id: "15-1", text: "先看合同里的押金条款" }, candidates: ["15-1"] });
-  return JSON.stringify({ actions: [{ entry_id: "15-1", action: "先看合同", cost: "不花钱", benefit: "中", evidence: "A" }], avoid: [], not_covered: "", refer: "", recheck: "" });
+  return JSON.stringify({
+    actions: [
+      { entry_id: "15-1", action: "先看合同", cost: "不花钱", benefit: "中", evidence: "A" },
+      { entry_id: "15-1", action: "保留押金凭证", cost: "不花钱", benefit: "中", evidence: "A" },
+      { entry_id: "15-1", action: "书面催告", cost: "不花钱", benefit: "中", evidence: "A" },
+    ],
+    avoid: [], not_covered: "", refer: "", recheck: "",
+  });
 };
 
 function makeHandler(chatOverride: ChatFn = chat, curated: Record<string, SignPayload> = {}) {
@@ -61,10 +68,20 @@ describe("handler", () => {
       if (messages[0].content.includes("章节路由")) return JSON.stringify({ sections: [15], confidence: 0.9 });
       throw new Error("model down");
     };
-    const body = await makeHandler(failingChat)(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    const handler = makeHandler(failingChat);
+    const body = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
     expect(body.mode).toBe("sign");
     expect(body.sign.entry_id).toBe("15-1");
     expect(body.degraded).toBe(true);
+    const signBody = await handler(request({ action: "sign", token: body.signToken })).then((res) => res.json());
+    expect(signBody.degraded).toBe(true);
+  });
+
+  it("hydrates a model sign without a degraded flag", async () => {
+    const handler = makeHandler();
+    const ask = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    const signBody = await handler(request({ action: "sign", token: ask.signToken })).then((res) => res.json());
+    expect(signBody.degraded).toBe(false);
   });
 
   it("marks a curated fallback response degraded", async () => {
@@ -99,6 +116,55 @@ describe("handler", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body.expand.actions[0].entry_id).toBe("15-1");
+    expect(body.degraded).toBe(false);
+  });
+
+  it("marks a local expansion fallback degraded", async () => {
+    const failingExpand: ChatFn = async (messages) => {
+      const system = messages[0].content;
+      if (system.includes("章节路由")) return JSON.stringify({ sections: [15], confidence: 0.9 });
+      if (system.includes("翻书人")) return JSON.stringify({ mode: "sign", sign: { entry_id: "15-1", text: "先看合同里的押金条款" }, candidates: ["15-1"] });
+      throw new Error("model down");
+    };
+    const handler = makeHandler(failingExpand);
+    const ask = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    const body = await handler(request({ action: "expand", token: ask.signToken })).then((res) => res.json());
+    expect(body.ok).toBe(true);
+    expect(body.expand.actions.length).toBeGreaterThan(0);
+    expect(body.degraded).toBe(true);
+    expect(body.expand.degraded).toBe(true);
+  });
+
+  it("serves a repeated question from the local cache without another model call", async () => {
+    let calls = 0;
+    const counting: ChatFn = async (messages) => {
+      calls += 1;
+      return chat(messages);
+    };
+    const handler = makeHandler(counting);
+    const first = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    expect(first.mode).toBe("sign");
+    expect(calls).toBe(2);
+    const second = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    expect(second.sign.entry_id).toBe(first.sign.entry_id);
+    expect(second.degraded).toBe(false);
+    expect(calls).toBe(2);
+  });
+
+  it("serves a repeated expansion from the local cache", async () => {
+    let calls = 0;
+    const counting: ChatFn = async (messages) => {
+      calls += 1;
+      return chat(messages);
+    };
+    const handler = makeHandler(counting);
+    const ask = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    const first = await handler(request({ action: "expand", token: ask.signToken })).then((res) => res.json());
+    expect(first.ok).toBe(true);
+    expect(calls).toBe(3);
+    const second = await handler(request({ action: "expand", token: ask.signToken })).then((res) => res.json());
+    expect(second.expand.actions).toHaveLength(first.expand.actions.length);
+    expect(calls).toBe(3);
   });
 
   it("returns meta and health", async () => {

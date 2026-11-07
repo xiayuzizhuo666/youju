@@ -17,8 +17,18 @@
             }
           } } }
         },
-        "responses": { "200": { "description": "签 / 展开账 / 元数据" } }
+        "responses": {
+          "200": { "description": "签 / 展开账 / 元数据" },
+          "401": { "description": "配置了 AGENT_API_KEY 时缺少或错误的 key" },
+          "429": { "description": "额度用完；响应头 Retry-After 为等待秒数" }
+        }
       }
     }
-  }
+  },
+  "components": {
+    "securitySchemes": {
+      "AgentKey": { "type": "http", "scheme": "bearer" }
+    }
+  },
+  "security": [{}, { "AgentKey": [] }]
 }

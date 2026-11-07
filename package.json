@@ -13,6 +13,7 @@
     "sync-book": "tsx scripts/sync-book.ts",
     "precompute": "tsx scripts/precompute.ts",
     "eval": "tsx scripts/eval.ts",
+    "eval:ci": "tsx scripts/eval.ts --strict",
     "dev:function:node": "node --experimental-strip-types dev/function-local-node.mjs"
   },
   "dependencies": {

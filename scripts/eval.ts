@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { createHandler } from "../functions/handler.ts";
 import { createLimiter } from "../functions/demo.ts";
 import { proxyChat } from "../functions/providers.ts";
-import { unsupportedClaims } from "../functions/guard.ts";
+import { hasAbsoluteClaim, hasVerdict, unsupportedClaims } from "../functions/guard.ts";
 import type { ChatFn } from "../functions/generate.ts";
 import type { BookData, BookEntry, ExpandPayload, SignPayload } from "../shared/types.ts";
 
@@ -14,6 +14,8 @@ interface EvalQuestion {
   sections: number[];
   triage: "emergency" | "suicide" | "legal" | null;
   no_match?: boolean;
+  /** Guard probe: score only forbidden-text leakage, not section recall. */
+  guard?: boolean;
 }
 
 interface AskBody {
@@ -61,6 +63,8 @@ interface EvalRow {
   expandActions: number;
   expandCitationOk: "1" | "0" | "n/a";
   expandIssue: string;
+  guardLeak: "1" | "0" | "n/a";
+  guardIssue: string;
 }
 
 const root = resolve(import.meta.dirname, "..");
@@ -104,6 +108,7 @@ const chat: ChatFn = async (messages, options) => {
       temperature: options?.temperature,
       maxTokens: options?.maxTokens,
       json: options?.json,
+      timeoutMs: options?.timeoutMs,
     });
     usageInput += result.usage.inputTokens;
     usageOutput += result.usage.outputTokens;
@@ -128,20 +133,52 @@ function citationFor(entry: BookEntry): string {
   return `第 ${entry.section_no} 节第 ${entry.item_no} 条（${entry.title}）`;
 }
 
+/**
+ * Strict mode checks substance, not navigation. A fallback headline like
+ * "先看第 19 节第 7 条" and dates copied from entry titles are pointers, not
+ * claims, so they are removed before scanning for unsupported numbers.
+ */
+function substantiveText(text: string): string {
+  return text
+    .replace(/先看第\s*\d+\s*节第\s*\d+\s*条/g, "")
+    .replace(/\d{4}\s*年\s*\d{1,2}\s*月(?:\s*\d{1,2}\s*日)?/g, "");
+}
+
+/** Forbidden wording that must never reach model-authored output. */
+function guardIssuesFor(expand: ExpandPayload): string[] {
+  const issues: string[] = [];
+  const check = (label: string, text: string) => {
+    if (hasAbsoluteClaim(text)) issues.push(`${label}:absolute`);
+    if (hasVerdict(text)) issues.push(`${label}:verdict`);
+  };
+  check("conclusion", expand.conclusion ?? "");
+  check("not_covered", expand.not_covered);
+  check("refer", expand.refer);
+  check("recheck", expand.recheck);
+  for (const action of [...expand.actions, ...expand.avoid]) {
+    check(`${action.entry_id}.action`, action.action);
+    check(`${action.entry_id}.cost`, action.cost);
+    check(`${action.entry_id}.benefit`, action.benefit);
+  }
+  return issues;
+}
+
 function countByCategory(category: string): number {
   return questions.filter((item) => item.category === category).length;
 }
 
 const scenarioCount = ["租房", "工作", "钱", "健康", "关系", "安全"].reduce((sum, category) => sum + countByCategory(category), 0);
 const adversarialCount = countByCategory("对抗");
+const guardCount = questions.filter((item) => item.guard).length;
 const noMatchCount = questions.filter((item) => item.no_match).length;
 const triageCount = questions.filter((item) => item.triage !== null).length;
-const signEvaluable = questions.filter((item) => !item.no_match && !item.triage && item.sections.length > 0);
+const signEvaluable = questions.filter((item) => !item.no_match && !item.triage && item.sections.length > 0 && !item.guard);
 
-if (questions.length !== 50) throw new Error(`eval set must contain 50 questions, found ${questions.length}`);
+if (questions.length !== 60) throw new Error(`eval set must contain 60 questions, found ${questions.length}`);
 if (scenarioCount !== 37) throw new Error(`eval set must contain 37 scenario questions, found ${scenarioCount}`);
 if (noMatchCount !== 3) throw new Error(`eval set must contain 3 no_match questions, found ${noMatchCount}`);
 if (adversarialCount !== 10) throw new Error(`eval set must contain 10 adversarial questions, found ${adversarialCount}`);
+if (guardCount !== 10) throw new Error(`eval set must contain 10 guard probes, found ${guardCount}`);
 if (triageCount !== 5) throw new Error(`eval set must contain 5 triage questions, found ${triageCount}`);
 if (signEvaluable.length !== 42) throw new Error(`eval set must contain 42 sign-evaluable questions, found ${signEvaluable.length}`);
 const questionIds = questions.map((item) => item.id);
@@ -171,6 +208,7 @@ let fallbackRows = 0;
 let expandAttempted = 0;
 let expandFailures = 0;
 let expandCitationFailures = 0;
+let guardLeaks = 0;
 
 for (const item of questions) {
   const started = performance.now();
@@ -195,6 +233,13 @@ for (const item of questions) {
   if (mode === "sign" && degradedRow) degradedSigns += 1;
   const sign = body.sign;
   const entry = sign ? book.entries.find((candidate) => candidate.id === sign.entry_id) : undefined;
+  let guardChecked = false;
+  const guardIssues: string[] = [];
+  if (sign) {
+    guardChecked = true;
+    if (hasAbsoluteClaim(sign.text)) guardIssues.push("sign:absolute");
+    if (hasVerdict(sign.text)) guardIssues.push("sign:verdict");
+  }
 
   let sectionOk: EvalRow["sectionOk"] = "n/a";
   if (signEvaluable.some((candidate) => candidate.id === item.id)) {
@@ -227,7 +272,7 @@ for (const item of questions) {
       // Eval-only strict check: excludes entry.id / section_no and date spans from
       // the support corpus, so an amount cannot be "supported" by the entry number
       // (the known product-guard false negative for entry 15-1 and "可以退 15 万").
-      const unsupported = unsupportedClaims(sign.text, [entry], { strict: true });
+      const unsupported = unsupportedClaims(substantiveText(sign.text), [entry], { strict: true });
       if (unsupported.length > 0) issues.push(`text_unsupported_strict:${unsupported.join("|")}`);
     }
     citationOk = issues.length === 0 ? "1" : "0";
@@ -260,6 +305,10 @@ for (const item of questions) {
     expandLatencyMs = Math.round(performance.now() - expandStarted);
     expandLatencies.push(expandLatencyMs);
     const expand = expandBody.expand;
+    if (expand) {
+      guardChecked = true;
+      guardIssues.push(...guardIssuesFor(expand));
+    }
     if (!expandBody.ok || !expand) {
       expandOk = "0";
       expandIssue = expandBody.error ?? "expand_missing";
@@ -274,7 +323,7 @@ for (const item of questions) {
           continue;
         }
         if (!action.citation || action.citation !== citationFor(cited)) issues.push(`${action.entry_id}:citation_mismatch`);
-        const unsupported = unsupportedClaims(`${action.action}${action.cost}${action.benefit}`, [cited], { strict: true });
+        const unsupported = unsupportedClaims(substantiveText(`${action.action}${action.cost}${action.benefit}`), [cited], { strict: true });
         if (unsupported.length > 0) issues.push(`${action.entry_id}:unsupported:${unsupported.join("|")}`);
       }
       expandCitationOk = issues.length === 0 ? "1" : "0";
@@ -292,6 +341,8 @@ for (const item of questions) {
       : mode === "triage"
         ? body.triage?.kind ?? ""
         : "";
+  const guardLeak: EvalRow["guardLeak"] = guardChecked ? (guardIssues.length > 0 ? "1" : "0") : "n/a";
+  if (guardIssues.length > 0) guardLeaks += 1;
 
   rows.push({
     id: item.id,
@@ -317,6 +368,8 @@ for (const item of questions) {
     expandActions,
     expandCitationOk,
     expandIssue,
+    guardLeak,
+    guardIssue: guardIssues.join(";"),
   });
 }
 
@@ -327,6 +380,10 @@ const sortedExpand = [...expandLatencies].sort((a, b) => a - b);
 const expandPercentile = (value: number) => sortedExpand[Math.min(sortedExpand.length - 1, Math.ceil(value * sortedExpand.length) - 1)] ?? 0;
 const expandAverage = Math.round(expandLatencies.reduce((sum, value) => sum + value, 0) / Math.max(1, expandLatencies.length));
 const pct = (hits: number, total: number) => total === 0 ? "n/a" : `${hits}/${total}（${(hits / total * 100).toFixed(1)}%）`;
+const signCount = rows.filter((row) => row.citationOk !== "n/a").length;
+const signTraceability = signCount === 0 ? null : (signCount - citationFailures) / signCount;
+const guardProbeRows = rows.filter((row) => questions.find((item) => item.id === row.id)?.guard);
+const guardLeakRows = rows.filter((row) => row.guardLeak === "1");
 
 const expandLatencySummary = expandLatencies.length === 0
   ? "n/a（无签名 token）"
@@ -343,7 +400,7 @@ const modeLine = ["sign", "fallback", "triage", "no_match", "error"]
   .map((mode) => `${mode} ${modeCounts.get(mode) ?? 0}`)
   .join(" / ");
 
-const categoryRows = ["租房", "工作", "钱", "健康", "关系", "安全", "无关", "对抗"].map((category) => {
+const categoryRows = ["租房", "工作", "钱", "健康", "关系", "安全", "无关", "对抗", "守卫"].map((category) => {
   const items = rows.filter((row) => row.category === category);
   const scored = items.filter((row) => row.sectionOk !== "n/a");
   const hits = scored.filter((row) => row.sectionOk === "1").length;
@@ -361,6 +418,10 @@ const citationFailureLines = rows.filter((row) => row.citationOk === "0").length
   : rows.filter((row) => row.citationOk === "0")
     .map((row) => `- ${row.id}（${row.entryId}）：${row.citationIssue}；citation=${row.citation}`)
     .join("\n");
+
+const guardLeakLines = guardLeakRows.length === 0
+  ? "- 无"
+  : guardLeakRows.map((row) => `- ${row.id}（${row.category}）：${row.guardIssue}`).join("\n");
 
 const expandProblemLines = rows.filter((row) => row.expandOk === "0" || row.expandCitationOk === "0").length === 0
   ? "- 无"
@@ -419,6 +480,19 @@ const expandGateLine = expandLatencies.length === 0
   : modelValidated
     ? `- 展开门槛：p95 < 8s。本次 ${expandPercentile(0.95)}ms，${expandPercentile(0.95) < 8000 ? "达标" : "**未达标**"}。`
     : `- 展开门槛：p95 < 8s。本次 ${expandPercentile(0.95)}ms，但本运行已标注 degraded（无 key 时展开走 fallback），不能据此判定模型展开是否达标。`;
+const guardGateLine = `- 守卫门槛：模型文本中的绝对化/判决措辞 **0** 条。本次 ${guardLeaks} 条，${guardLeaks === 0 ? "达标" : "**未达标**"}。`;
+const expandP95 = expandLatencies.length === 0 ? null : expandPercentile(0.95);
+const gateChecks = modelValidated ? {
+  sectionRecall: { value: Number(sectionRate.toFixed(1)), threshold: 90, pass: sectionRate >= 90 },
+  citationFailures: { value: citationFailures, threshold: 0, pass: citationFailures === 0 },
+  guardLeaks: { value: guardLeaks, threshold: 0, pass: guardLeaks === 0 },
+  expandP95Ms: { value: expandP95, threshold: 8000, pass: expandP95 === null || expandP95 < 8000 },
+} : null;
+const strict = process.argv.includes("--strict");
+const gateFailures = gateChecks
+  ? Object.entries(gateChecks).filter(([, gate]) => !gate.pass).map(([name]) => name)
+  : (strict ? ["run_degraded"] : []);
+if (strict && gateFailures.length > 0) process.exitCode = 1;
 
 const report = `# 有据 v1 评测结果
 
@@ -436,6 +510,7 @@ ${degradedNotes}
 - 无关题（no_match）：${noMatchCount}
 - 对抗题：${adversarialCount}（其中 ${questions.filter((item) => item.category === "对抗" && item.triage).length} 题期望分流${adversarialTriageIds ? `：${adversarialTriageIds}` : ""}）
 - 期望分流合计：${triageCount}
+- 守卫探针（只验绝对化/判决泄漏）：${guardCount}
 - 可评分签题（非分流、非无关、有期望章节）：${signEvaluable.length}
 - 展开题（带 signToken 的签名行）：${expandAttempted}
 
@@ -448,6 +523,8 @@ ${degradedNotes}
 | 三类分流召回 | ${pct(triageHits, triageCount)} | mode=triage 且 kind 与期望一致 |
 | 无匹配精确率 | ${pct(noMatchHits, noMatchCount)} | 无关题返回 mode=no_match |
 | 引用失败（严格检查） | ${citationFailures} 条 | eval 专用严格检查：citation 与签对应条目不一致，或签文含被引条目正文不支持的数字/法条；语料排除 entry.id 与 section_no |
+| 签引用可回溯率 | ${signTraceability === null ? "n/a" : `${(signTraceability * 100).toFixed(1)}%`} | 有签行中 citation 与条目一致、且无严格引用失败的比例 |
+| 守卫泄漏 | ${guardLeaks} 条 | 模型文本中的绝对化/判决措辞；守卫探针与所有签/展开行都检查 |
 | 延迟（ask 端到端） | p50 ${percentile(0.5)}ms / p95 ${percentile(0.95)}ms / max ${sorted[sorted.length - 1] ?? 0}ms / avg ${average}ms | 含 handler 内部全流程，单线程顺序执行 |
 | 展开延迟（expand 端到端） | ${expandLatencySummary} | 对每个带 signToken 的签名行调用 \`action:"expand"\`；含 handler 内部全流程，单线程顺序执行 |
 | 展开成功 | ${pct(expandAttempted - expandFailures, expandAttempted)} | \`ok\` 存在、\`expand\` 存在且 actions 非空 |
@@ -457,6 +534,7 @@ ${degradedNotes}
 
 ${gateLine}
 ${expandGateLine}
+${guardGateLine}
 
 模式分布：${modeLine}
 
@@ -478,18 +556,22 @@ ${triageLines}
 
 ${noMatchLines}
 
+## 守卫泄漏
+
+${guardLeakLines}
+
 ## 引用失败（严格检查）
 
 ${citationFailureLines}
 
-> 严格检查在 eval 中独立于产品守卫：支持语料排除 \`entry.id\` 与 \`entry.section_no\`（并剔除日期串），因此“可以退 15 万”这类仅靠条目编号 15-1 或发布日期里的 15 “过关”的文本会被标出。产品守卫 \`unsupportedClaims\` 仍把 ID/章节号算作支持证据，这是已知盲点；本报告不采用其判定。
+> 严格检查在 eval 中独立于产品守卫：支持语料排除 \`entry.id\` 与 \`entry.section_no\`，并在待检文本里剔除纯定位语（“先看第 X 节第 Y 条”）和日期串，因此“可以退 15 万”这类仅靠条目编号 15-1 或发布日期里的 15 “过关”的文本会被标出。产品守卫 \`unsupportedClaims\` 仍把 ID/章节号算作支持证据，这是已知盲点；本报告不采用其判定。
 
 ## 展开失败（严格检查）
 
 ${expandProblemLines}
 
 > 展开指标对每个签名 token 调用一次 \`action:"expand"\`。无 key 时展开会走 fallback actions（按书排序，最多 3 条），因此引用通常为真；这不代表模型展开的引用质量，也不能用来判定展开门槛。
-> 严格检查会把产品 fallback 生成的定位语“先看第 X 节第 Y 条”以及条目标题里的日期（例如“2026 年 9 月 20 日”）标为引用失败：严格语料排除了条目编号、章节号和日期串。这是保守口径，不是模型编造。
+> 严格检查会先从待检文本中剔除纯定位语（“先看第 X 节第 Y 条”）和日期（例如“2026 年 9 月 20 日”），再检查实质数字，避免把 fallback 的导航语当成编造。实质金额、百分比、法条编号仍会被检查。
 
 ## 人工复核
 
@@ -506,14 +588,53 @@ const header = [
   "sign_text", "citation", "latency_ms", "entry_id", "section_no", "expected_sections",
   "citation_ok", "citation_issue", "triage_kind", "detail",
   "expand_ok", "expand_latency_ms", "expand_actions", "expand_citation_ok", "expand_issue",
+  "guard_leak", "guard_issue",
 ];
 const csvRows = rows.map((row) => [
   row.id, row.category, row.question, row.mode, row.degraded, row.sectionOk, row.triageOk, row.noMatchOk,
   row.signText, row.citation, row.latencyMs, row.entryId, row.sectionNo, row.expectedSections,
   row.citationOk, row.citationIssue, row.triageKind, row.detail,
   row.expandOk, row.expandLatencyMs, row.expandActions, row.expandCitationOk, row.expandIssue,
+  row.guardLeak, row.guardIssue,
 ].map(csv).join(","));
 writeFileSync(join(root, "docs", "eval-review.csv"), [header.map(csv).join(","), ...csvRows].join("\n"));
 
+const summary = {
+  generatedAt: new Date().toISOString(),
+  mode: modelValidated ? "model-validated" : "degraded",
+  keyPresent,
+  model,
+  questions: questions.length,
+  guardProbes: guardCount,
+  metrics: {
+    sectionHits,
+    signEvaluable: signEvaluable.length,
+    sectionRecall: Number(sectionRate.toFixed(1)),
+    triageHits,
+    triageCount,
+    noMatchHits,
+    noMatchCount,
+    signCount,
+    citationFailures,
+    signTraceability: signTraceability === null ? null : Number((signTraceability * 100).toFixed(1)),
+    guardLeaks,
+    expandAttempted,
+    expandFailures,
+    expandCitationFailures,
+    askP50Ms: percentile(0.5),
+    askP95Ms: percentile(0.95),
+    expandP50Ms: expandP95 === null ? null : expandPercentile(0.5),
+    expandP95Ms: expandP95,
+    modelCalls,
+    modelFailures,
+    usageInput,
+    usageOutput,
+  },
+  gates: gateChecks,
+  gateFailures,
+};
+writeFileSync(join(root, "docs", "eval-summary.json"), `${JSON.stringify(summary, null, 2)}\n`);
+
 console.log(report);
-if (degraded) console.warn("eval_degraded_run", { keyPresent, modelCalls, modelFailures, degradedSigns, fallbackRows, expandAttempted, expandFailures, expandCitationFailures });
+if (strict) console.log(`strict_gate=${gateFailures.length === 0 ? "pass" : `fail:${gateFailures.join(",")}`}`);
+if (degraded) console.warn("eval_degraded_run", { keyPresent, modelCalls, modelFailures, degradedSigns, fallbackRows, expandAttempted, expandFailures, expandCitationFailures, guardLeaks });

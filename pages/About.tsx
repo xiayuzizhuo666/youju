@@ -13,6 +13,10 @@ export function AboutPage() {
         <p>写下问题 → 翻一签 → 展开这本账。签文是书里的一条建议；展开会按成本、收益和证据排序，告诉你先做什么、别做什么、书里没写的，以及什么时候该找医生或律师。</p>
       </section>
       <section className="expand-section">
+        <h2>记录</h2>
+        <p>翻签记录只存在你这台设备的浏览器里，不上传服务器，也不用于训练；清除浏览器数据即删除。</p>
+      </section>
+      <section className="expand-section">
         <h2>边界</h2>
         <p>急症先打 120，心理危机先打 12356，正在进行的法律程序先找律师。通用口径，不替代医生、律师、会计。</p>
       </section>

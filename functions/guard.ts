@@ -76,7 +76,7 @@ export function unsupportedClaims(text: string, entries: BookEntry[], options: U
     )
     .join("|")
     .replace(/\s+/g, "");
-  if (options.strict) corpus = corpus.replace(/\d{4}年\d{1,2}月(?:\d{1,2}日)?/g, "|");
+  if (options.strict) corpus = corpus.replace(/\d{4}\s*年\s*\d{1,2}\s*月(?:\s*\d{1,2}\s*日)?/g, "|");
   // Law references are reported in their original wording (whitespace runs collapsed),
   // and their spans are removed before the number scan so an article is not reported twice.
   const lawMatches = (text.match(LAW) ?? []).map((law) => law.replace(/\s+/g, " "));

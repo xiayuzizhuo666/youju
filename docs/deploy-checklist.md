@@ -5,7 +5,7 @@
 ## 0. 当前状态（本地已完成）
 
 - [x] `npm run build` 通过（Vite 产物在 `dist/`，只有一个大于 500 kB 的 chunk 警告）。
-- [x] `npm test` 通过：17 个测试文件、118 个测试。
+- [x] `npm test` 通过：19 个测试文件、137 个测试。
 - [x] 封面 `docs/cover.html` 已生成，并截图到 `public/cover.png`：1920×1080、PNG、316,961 字节（约 0.30 MiB）、16:9、小于 5MB，中文逐字核对正确。
 - [x] 投稿说明 `docs/submission.md`、演示脚本 `docs/demo-script.md` 已就绪。
 - [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）。
@@ -33,6 +33,7 @@ export ComSpec='C:\Windows\System32\cmd.exe'
 | --- | --- | --- |
 | `DEEPSEEK_API_KEY` | owner 已有的 DeepSeek key | 只存在 Site Secret；不要粘贴进仓库或本地 `.env` |
 | `APP_HMAC_SECRET` | 随机 32+ 字符 | 只存在 Site Secret；用于签/展开 token 的 HMAC |
+| `AGENT_API_KEY` | 可选，随机 32+ 字符 | 可选；配置后 Agent 调用需带 `Authorization: Bearer <key>`，不配置则保持开放 |
 
 `APP_HMAC_SECRET` 可由 owner 自己生成，例如在可信终端运行：
 
@@ -80,9 +81,10 @@ ComSpec='C:\Windows\System32\cmd.exe' npm run build
 - [ ] `/` 首页可打开，输入框、场景卡、今日一签正常。
 - [ ] 输入“房东不退押金怎么办？”，点“翻一签”，能落到签卡。
 - [ ] 点“展开这本账”，`/expand/...` 有行动、别做清单、书里没写的、该找谁。
-- [ ] `/about` 显示“什么是答案之书”：是什么、怎么用、边界。
+- [ ] `/about` 显示“什么是答案之书”：是什么、怎么用、记录、边界。
+- [ ] `/history` 显示本机翻签记录、连续天数与清空按钮；刷新后记录仍在。
 - [ ] `/api` 显示 Agent API 说明，`/openapi.json` 可访问。
-- [ ] `/functions/v1/app?action=health` 返回 `modelKeyConfigured` 与 `hmacConfigured` 两个布尔值；两者都为 `true` 才说明 Secrets 生效，接口不会返回值本身。
+- [ ] `/functions/v1/app?action=health` 返回 `modelKeyConfigured`、`hmacConfigured`、`agentKeyConfigured` 三个布尔值；前两者都为 `true` 才说明 Secrets 生效，接口不会返回值本身。
 - [ ] “存成签卡”能下载 1080×1440 PNG。
 - [ ] 手机浏览器可用，无横向滚动、无遮挡。
 
@@ -106,7 +108,8 @@ curl --fail -X POST '<public-url>/functions/v1/app' \
 
 - `get_book_meta` 返回 `total: 772`、34 节、A/B/C 计数，以及版本 commit `21ad9068a207fb5f99d7ae60a9ef9a814a45ba20`。
 - `ask_life_question` 返回 `mode: "sign"`，含签（`sign`）、展开（`expand`）、出处和 `disclaimer`；没有 key 时会走降级签并带 `degraded` 标记。
-- 如果返回 429，说明演示额度用尽（见第 7 节），不是故障。
+- 如果配置了 `AGENT_API_KEY`，不带 `Authorization: Bearer <key>` 会返回 401；未配置则开放。
+- 如果返回 429，说明演示额度用尽（见第 7 节），响应头 `Retry-After` 是等待秒数，不是故障。
 
 ## 7. owner：有 key 评测（必须，提交前）
 
@@ -120,7 +123,7 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 注意：
 
 - key 只注入本次进程环境，不写 `.env`、不提交；命令历史可能留下明文，跑完清理 shell 历史或改用安全的注入方式。
-- eval 在进程内调用 handler，不经过公开 URL，因此不会被线上 30 次/IP/天的额度影响；一次完整运行约 45 次章节路由 + 45 次选签 + 45 次展开的模型请求（分流题不路由），会产生少量费用。
+- eval 在进程内调用 handler，不经过公开 URL，因此不会被线上 30 次/IP/天的额度影响；一次完整运行约 55 次章节路由 + 55 次选签 + 55 次展开的模型请求（分流题不路由），会产生少量费用。
 - 若需要成本估算，额外注入 `EVAL_INPUT_PRICE_PER_M` / `EVAL_OUTPUT_PRICE_PER_M`（元/百万 token）；不注入时报告只记录 token 用量，不编造成本。
 - 运行结束后，用新结果替换：
   - `docs/eval-results.md`（整份报告由脚本生成，含 ask / expand 延迟、展开引用失败、token 与成本）；
@@ -131,8 +134,9 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 线上额度（部署后的真实限制，写进投稿说明即可，不是本地 eval 的限制）：
 
 - 网页每 IP 每天 30 次问、10 次展开；
-- Agent 的 `ask_life_question` 与网页共用同一套按 IP 计数的额度（非分流问题才计数），不同 IP 各自计数，不再共用一个全局 agent 桶；
-- 全局每天 500 次问、200 次展开；
+- Agent 的 `ask_life_question` 使用独立额度：每 IP 每天 20 次（非分流问题才计数），不和网页额度互相挤占；
+- 全局每天 500 次问、200 次展开、200 次 Agent 问；
+- 重复问题命中进程内缓存时不调用模型；缓存最多 100 条、30 分钟过期；
 - 分流问题在限流之前处理，不占额度。
 
 这些计数器是 **per-isolate 的内存软限额**：Qoder Sites 可能同时跑多个 Function isolate，每个 isolate 各有一份计数；冷启动或扩容后计数会重置。它用于挡住公开链接被刷和演示成本失控，不是精确计费。客户端 IP 的取法：优先平台设置的 `cf-connecting-ip` / `x-real-ip`，否则只看 `x-forwarded-for` 的**最后一跳**（最近代理），不接受客户端可轮换的第一跳。若平台不设置这些头，所有请求会落到 `unknown` 共享桶。需要精确额度时再换持久计数（KV/数据库）。

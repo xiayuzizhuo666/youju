@@ -5,7 +5,8 @@ import { normalizeQuestion } from "./lib/normalize.ts";
 import { classifyTriage } from "./guard.ts";
 import { routeQuestion, selectSign, expandAnswer, signFromEntry, type ChatFn } from "./generate.ts";
 import { signToken, verifyToken } from "./token.ts";
-import { createLimiter } from "./demo.ts";
+import { createLimiter, type Limiter } from "./demo.ts";
+import { cacheKey, createCache } from "./cache.ts";
 import { proxyChat } from "./providers.ts";
 import { handleAgent } from "./agent.ts";
 import { book } from "./book.ts";
@@ -19,24 +20,35 @@ export interface HandlerDeps {
   book: BookData;
   chat: ChatFn;
   now: () => number;
-  env: { APP_HMAC_SECRET: string };
-  limiter: ReturnType<typeof createLimiter>;
-  expandLimiter: ReturnType<typeof createLimiter>;
+  env: { APP_HMAC_SECRET: string; AGENT_API_KEY?: string };
+  limiter: Limiter;
+  expandLimiter: Limiter;
+  agentLimiter?: Limiter;
   curated: Record<string, SignPayload>;
   /** Boolean signals only; the values must never leave the Function env. */
   modelKeyConfigured?: boolean;
   hmacConfigured?: boolean;
 }
 
-function json(payload: unknown, status = 200): Response {
+function json(payload: unknown, status = 200, headers: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(payload), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
+    headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", ...headers },
   });
 }
 
-function error(code: string, status: number, message: string): Response {
-  return json({ ok: false, error: code, message }, status);
+function error(code: string, status: number, message: string, headers: Record<string, string> = {}): Response {
+  return json({ ok: false, error: code, message }, status, headers);
+}
+
+function rateLimited(limiter: Limiter): Response {
+  const retry = limiter.retryAfterMs?.() ?? 0;
+  return error(
+    "rate_limited",
+    429,
+    "今天的演示额度用完了，明天再来，或先翻今日一签。",
+    retry > 0 ? { "Retry-After": String(Math.ceil(retry / 1000)) } : {},
+  );
 }
 
 /**
@@ -71,11 +83,18 @@ function compactToken(payload: SignTokenPayload | null): SignTokenPayload | null
     id: payload.id,
     c: payload.c.slice(0, MAX_TOKEN_CANDIDATES),
     exp: payload.exp,
+    ...(payload.d === true ? { d: true } : {}),
   };
 }
 
-function tokenFor(question: string, id: string, candidates: string[], now: number): SignTokenPayload {
-  return { q: question, id, c: [...new Set([id, ...candidates])].slice(0, MAX_TOKEN_CANDIDATES), exp: now + TOKEN_TTL_MS };
+function tokenFor(question: string, id: string, candidates: string[], now: number, degraded = false): SignTokenPayload {
+  return {
+    q: question,
+    id,
+    c: [...new Set([id, ...candidates])].slice(0, MAX_TOKEN_CANDIDATES),
+    exp: now + TOKEN_TTL_MS,
+    ...(degraded ? { d: true } : {}),
+  };
 }
 
 function triageMessage(kind: "emergency" | "suicide" | "legal"): { message: string; citation?: string } {
@@ -84,9 +103,15 @@ function triageMessage(kind: "emergency" | "suicide" | "legal"): { message: stri
   return { message: "涉及人身安全或正在进行的法律程序（传唤、拘留、起诉）：先保证安全、报警或找律师；书里只给通用口径，不替个案下判断。", citation: "第 8 节（别把自己搭进去）" };
 }
 
+const CACHE_TTL_MS = 30 * 60_000;
+const CACHE_MAX = 100;
+
 export function createHandler(deps: HandlerDeps) {
+  const askCache = createCache<{ sign: SignPayload; candidates: string[] }>({ ttlMs: CACHE_TTL_MS, max: CACHE_MAX, now: deps.now });
+  const expandCache = createCache<ExpandPayload>({ ttlMs: CACHE_TTL_MS, max: CACHE_MAX, now: deps.now });
+
   async function fallbackResponse(question: string, sign: SignPayload, candidateIds: string[] = []): Promise<Response> {
-    const token = await signToken(tokenFor(question, sign.entry_id, candidateIds, deps.now()), deps.env.APP_HMAC_SECRET);
+    const token = await signToken(tokenFor(question, sign.entry_id, candidateIds, deps.now(), true), deps.env.APP_HMAC_SECRET);
     return json({ ok: true, mode: "fallback", question, sign, signToken: token, degraded: true, disclaimer: DISCLAIMER } satisfies AskResponse);
   }
 
@@ -122,6 +147,7 @@ export function createHandler(deps: HandlerDeps) {
             // Boolean signals only; never expose the values themselves.
             modelKeyConfigured: deps.modelKeyConfigured === true,
             hmacConfigured: deps.hmacConfigured ?? deps.env.APP_HMAC_SECRET.trim().length > 0,
+            agentKeyConfigured: (deps.env.AGENT_API_KEY ?? "").trim().length > 0,
           });
         }
         if (url.searchParams.get("action") === "daily") {
@@ -148,7 +174,15 @@ export function createHandler(deps: HandlerDeps) {
       const body = parsed as Record<string, unknown>;
 
       const action = body.action;
-      if (action === "agent") return handleAgent(body, deps, clientIp(request));
+      if (action === "agent") {
+        const required = deps.env.AGENT_API_KEY?.trim() ?? "";
+        if (required) {
+          const bearer = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+          const provided = bearer || request.headers.get("x-api-key")?.trim() || "";
+          if (provided !== required) return error("unauthorized", 401, "Agent API 需要有效的 key。");
+        }
+        return handleAgent(body, deps, clientIp(request));
+      }
       if (action === "sign") {
         // Hydrate the sign from the book after verifying the HMAC; the token
         // carries no display text, so a fabricated token fails closed here.
@@ -157,7 +191,13 @@ export function createHandler(deps: HandlerDeps) {
         if (!payload) return error("invalid_token", 400, "这张签已过期或链接不完整，请重新翻一次。");
         const entry = deps.book.entries.find((candidate) => candidate.id === payload.id);
         if (!entry) return error("invalid_token", 400, "这张签对应的条目不存在，请重新翻一次。");
-        const response: SignResponse = { ok: true, question: payload.q, sign: signFromEntry(entry), disclaimer: DISCLAIMER };
+        const response: SignResponse = {
+          ok: true,
+          question: payload.q,
+          sign: signFromEntry(entry),
+          degraded: payload.d === true,
+          disclaimer: DISCLAIMER,
+        };
         return json(response);
       }
       if (action === "ask") {
@@ -173,7 +213,23 @@ export function createHandler(deps: HandlerDeps) {
         const cached = Object.hasOwn(deps.curated, key) ? deps.curated[key] : undefined;
         if (!deps.limiter.allow(clientIp(request))) {
           if (cached) return fallbackResponse(question, cached, retrievalIds(question));
-          return error("rate_limited", 429, "今天的演示额度用完了，明天再来，或先翻今日一签。");
+          return rateLimited(deps.limiter);
+        }
+
+        const askKey = await cacheKey([key]);
+        const cachedResult = askCache.get(askKey);
+        if (cachedResult) {
+          const candidateIds = [...new Set([cachedResult.sign.entry_id, ...cachedResult.candidates])];
+          const token = await signToken(tokenFor(question, cachedResult.sign.entry_id, candidateIds, deps.now()), deps.env.APP_HMAC_SECRET);
+          return json({
+            ok: true,
+            mode: "sign",
+            question,
+            sign: cachedResult.sign,
+            signToken: token,
+            degraded: false,
+            disclaimer: DISCLAIMER,
+          } satisfies AskResponse);
         }
 
         const routed = await routeQuestion(deps.chat, question, deps.book.sections);
@@ -205,7 +261,8 @@ export function createHandler(deps: HandlerDeps) {
         }
 
         const candidateIds = [...new Set([result.sign.entry_id, ...result.candidates])];
-        const payload = tokenFor(question, result.sign.entry_id, candidateIds, deps.now());
+        if (!result.degraded) askCache.set(askKey, { sign: result.sign, candidates: candidateIds });
+        const payload = tokenFor(question, result.sign.entry_id, candidateIds, deps.now(), result.degraded);
         const token = await signToken(payload, deps.env.APP_HMAC_SECRET);
         const response: AskResponse = { ok: true, mode: "sign", question, sign: result.sign, signToken: token, degraded: result.degraded, disclaimer: DISCLAIMER };
         return json(response);
@@ -220,10 +277,28 @@ export function createHandler(deps: HandlerDeps) {
         const candidateIds = new Set([payload.id, ...payload.c]);
         const candidates = deps.book.entries.filter((entry) => candidateIds.has(entry.id));
         if (candidates.length === 0) return error("invalid_token", 400, "签对应的条目不存在。");
-        if (!deps.expandLimiter.allow(clientIp(request))) return error("rate_limited", 429, "今天的演示额度用完了，明天再来，或先翻今日一签。");
+        if (!deps.expandLimiter.allow(clientIp(request))) return rateLimited(deps.expandLimiter);
+        const expandKey = await cacheKey([payload.q, payload.id, payload.c.join(",")]);
+        const cachedExpand = expandCache.get(expandKey);
+        if (cachedExpand) {
+          return json({
+            ok: true,
+            expand: cachedExpand,
+            citations: cachedExpand.actions.map((item) => item.citation),
+            degraded: false,
+            disclaimer: DISCLAIMER,
+          } satisfies ExpandResponse);
+        }
         const sign = signFromEntry(signEntry);
         const expand = await expandAnswer(deps.chat, payload.q, sign, candidates);
-        const response: ExpandResponse = { ok: true, expand, citations: expand.actions.map((item) => item.citation), disclaimer: DISCLAIMER };
+        if (expand.degraded !== true) expandCache.set(expandKey, expand);
+        const response: ExpandResponse = {
+          ok: true,
+          expand,
+          citations: expand.actions.map((item) => item.citation),
+          degraded: expand.degraded === true,
+          disclaimer: DISCLAIMER,
+        };
         return json(response);
       }
 
@@ -260,6 +335,7 @@ const chat: ChatFn = async (messages, options) => {
     temperature: options?.temperature,
     maxTokens: options?.maxTokens,
     json: options?.json,
+    timeoutMs: options?.timeoutMs,
   });
   return result.text;
 };
@@ -268,9 +344,10 @@ export const handler = createHandler({
   book,
   chat,
   now: Date.now,
-  env: { APP_HMAC_SECRET: hmacSecret },
+  env: { APP_HMAC_SECRET: hmacSecret, AGENT_API_KEY: envValue("AGENT_API_KEY") },
   limiter: createLimiter({ maxPerIp: 30, maxGlobal: 500 }),
   expandLimiter: createLimiter({ maxPerIp: 10, maxGlobal: 200 }),
+  agentLimiter: createLimiter({ maxPerIp: 20, maxGlobal: 200 }),
   curated: curatedCache,
   modelKeyConfigured: Boolean(envValue("DEEPSEEK_API_KEY")),
   hmacConfigured: Boolean(configuredSecret),

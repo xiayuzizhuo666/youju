@@ -13,6 +13,8 @@ describe("global footer", () => {
   it("links to the answer-book explanation and carries no source attribution", () => {
     expect(source).toContain('href="/about"');
     expect(source).toContain("什么是答案之书");
+    expect(source).toContain('href="/history"');
+    expect(source).toContain("翻签记录");
     expect(source).not.toContain("CC BY 4.0");
     expect(source).not.toContain("内容来自");
   });

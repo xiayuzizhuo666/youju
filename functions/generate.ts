@@ -5,7 +5,7 @@ import { EXPAND_SYSTEM, ROUTE_SYSTEM, SIGN_SYSTEM, expandUser, routeUser, signUs
 
 export type ChatFn = (
   messages: { role: "system" | "user" | "assistant"; content: string }[],
-  options?: { json?: boolean; temperature?: number; maxTokens?: number },
+  options?: { json?: boolean; temperature?: number; maxTokens?: number; timeoutMs?: number },
 ) => Promise<string>;
 
 const SIGN_MAX_CHARS = 24;
@@ -55,7 +55,7 @@ export async function routeQuestion(chat: ChatFn, question: string, sections: Bo
     const raw = await chat([
       { role: "system", content: ROUTE_SYSTEM },
       { role: "user", content: routeUser(question, sections) },
-    ], { json: true, temperature: 0, maxTokens: 300 });
+    ], { json: true, temperature: 0, maxTokens: 300, timeoutMs: 4_000 });
     const parsed = parseJson(raw);
     if (!isRecord(parsed)) throw new Error("invalid route");
     const parsedSections = Array.isArray(parsed.sections)
@@ -144,7 +144,7 @@ export async function selectSign(chat: ChatFn, question: string, candidates: Boo
     const raw = await chat([
       { role: "system", content: SIGN_SYSTEM },
       { role: "user", content: signUser(question, candidates) },
-    ], { json: true, temperature: 0.2, maxTokens: 600 });
+    ], { json: true, temperature: 0.2, maxTokens: 600, timeoutMs: 6_000 });
     const parsed = parseJson(raw);
     if (!isRecord(parsed)) throw new Error("invalid sign");
     const mode = parsed.mode === "no_match" ? "no_match" : parsed.mode === "sign" ? "sign" : null;
@@ -228,7 +228,7 @@ export async function expandAnswer(chat: ChatFn, question: string, sign: SignPay
     const raw = await chat([
       { role: "system", content: EXPAND_SYSTEM },
       { role: "user", content: expandUser(question, sign, candidates) },
-    ], { json: true, temperature: 0.3, maxTokens: 2000 });
+    ], { json: true, temperature: 0.3, maxTokens: 2000, timeoutMs: 8_000 });
     const parsed = parseJson(raw);
     if (!isRecord(parsed)) throw new Error("invalid expand");
     const actionsRaw = parseExpandItems(parsed.actions);
@@ -272,9 +272,10 @@ export async function expandAnswer(chat: ChatFn, question: string, sign: SignPay
       not_covered: safeExpandText(asString(parsed.not_covered)),
       refer: safeExpandText(asString(parsed.refer)),
       recheck: safeExpandText(asString(parsed.recheck)),
+      degraded: cleaned.length < 3,
     };
   } catch (error) {
     console.warn("generate_expand_failed", error instanceof Error ? error.message : error);
-    return { conclusion: "", actions: fallback, avoid: [], not_covered: "", refer: "", recheck: "" };
+    return { conclusion: "", actions: fallback, avoid: [], not_covered: "", refer: "", recheck: "", degraded: true };
   }
 }

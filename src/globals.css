@@ -114,6 +114,16 @@ button { font-family: inherit; }
 .sign-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 .share-error { color: var(--vermilion-deep); margin: 8px 0 0; }
 .sign-disclaimer { color: var(--ink-muted); font-size: 12px; margin-top: 12px; }
+.degraded-note { color: var(--ink-muted); font-size: 13px; border-left: 2px solid var(--rule-strong); padding-left: 10px; margin: 14px 0 0; }
+.ask-streak { color: var(--ink-muted); font-size: 13px; margin: 10px 0 0; }
+.history-streak { color: var(--vermilion-deep); font-size: 13px; margin: 0 0 16px; }
+.history-empty { color: var(--ink-muted); }
+.history-list { list-style: none; padding: 0; margin: 0; }
+.history-item { border-top: 1px solid var(--rule); padding: 16px 0; }
+.history-item:last-child { border-bottom: 1px solid var(--rule); }
+.history-question { color: var(--ink-muted); font-size: 13px; margin: 0 0 4px; }
+.history-text { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+.history-meta { color: var(--ink-muted); font-size: 12px; margin: 0; }
 .book-flip { animation: flip-in 700ms cubic-bezier(.2,.7,.2,1) both; }
 @keyframes flip-in {
   from { opacity: 0; transform: perspective(900px) rotateX(-10deg) translateY(10px); }

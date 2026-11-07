@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { SceneCards } from "@/components/SceneCards";
 import { ask, daily, type DailyResponse } from "@/lib/api";
+import { history } from "@/lib/history";
 import { navigate } from "@/lib/router";
 
 export function AskPage() {
@@ -10,6 +11,7 @@ export function AskPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dailySign, setDailySign] = useState<DailyResponse | null>(null);
+  const streak = history.streak();
 
   useEffect(() => {
     let alive = true;
@@ -79,6 +81,10 @@ export function AskPage() {
           <strong>{dailySign.sign.text}</strong>
           <small>{dailySign.sign.citation}</small>
         </button>
+      ) : null}
+
+      {streak >= 2 ? (
+        <p className="ask-streak">连续 {streak} 天翻签 · <a href="/history">翻签记录</a></p>
       ) : null}
 
       <SceneCards onPick={submit} />

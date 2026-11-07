@@ -11,6 +11,7 @@ export function ApiPage() {
         <pre className="code-block">{`POST /functions/v1/app
 {"action":"agent","tool":"ask_life_question","input":{"question":"房东不退押金怎么办"}}`}</pre>
         <p>返回签、展开账、引用与免责声明；医疗、法律、金融只给方向和该找谁。</p>
+        <p>比赛演示默认开放。若站点配置了 <code>AGENT_API_KEY</code>，调用需带 <code>Authorization: Bearer &lt;key&gt;</code>；额度用完时返回 429 和 <code>Retry-After</code>。</p>
       </section>
       <section className="expand-section">
         <h2>get_daily_sign</h2>

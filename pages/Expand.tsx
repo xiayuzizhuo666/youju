@@ -35,6 +35,9 @@ export function ExpandPage({ token }: { token: string }) {
         <p className="book-kicker">这本账</p>
         <h1>书里算了这几笔</h1>
       </header>
+      {data.degraded || data.expand.degraded ? (
+        <p className="degraded-note" role="status">模型这次没接上，下面这些动作是按书里的排序兜底的。</p>
+      ) : null}
       <ExpandView expand={data.expand} />
       <p className="sign-disclaimer">{data.disclaimer}</p>
       <div className="sign-actions">

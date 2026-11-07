@@ -202,6 +202,28 @@ describe("handler regression", () => {
     expect((await response.json()).error).toBe("invalid_token");
   });
 
+  it("requires AGENT_API_KEY for agent calls when configured", async () => {
+    const handler = makeHandler({ env: { APP_HMAC_SECRET: "test", AGENT_API_KEY: "agent-secret" } });
+    const body = { action: "agent", tool: "get_book_meta", input: {} };
+    const denied = await handler(request(body));
+    expect(denied.status).toBe(401);
+    expect((await denied.json()).error).toBe("unauthorized");
+
+    const bearer = await handler(new Request("http://localhost/functions/v1/app", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer agent-secret" },
+      body: JSON.stringify(body),
+    }));
+    expect(bearer.status).toBe(200);
+
+    const header = await handler(new Request("http://localhost/functions/v1/app", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": "agent-secret" },
+      body: JSON.stringify(body),
+    }));
+    expect(header.status).toBe(200);
+  });
+
   it("reports health flags without exposing values", async () => {
     const withKey = makeHandler({ modelKeyConfigured: true, hmacConfigured: true });
     const health = await withKey(new Request("http://localhost/functions/v1/app?action=health")).then((res) => res.json());

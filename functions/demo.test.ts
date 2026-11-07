@@ -13,4 +13,14 @@ describe("createLimiter", () => {
     now += 24 * 60 * 60 * 1000;
     expect(limiter.allow("a")).toBe(true);
   });
+
+  it("resets at Beijing midnight and reports the wait", () => {
+    let now = Date.UTC(2026, 10, 7, 15, 59, 0);
+    const limiter = createLimiter({ now: () => now, maxPerIp: 1, maxGlobal: 10 });
+    expect(limiter.allow("a")).toBe(true);
+    expect(limiter.allow("a")).toBe(false);
+    expect(limiter.retryAfterMs?.()).toBe(60_000);
+    now = Date.UTC(2026, 10, 7, 16, 0, 0);
+    expect(limiter.allow("a")).toBe(true);
+  });
 });

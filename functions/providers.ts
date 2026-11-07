@@ -115,6 +115,7 @@ export interface ProxyChatOptions {
   temperature?: number;
   maxTokens?: number;
   json?: boolean;
+  timeoutMs?: number;
   signal?: AbortSignal;
 }
 
@@ -142,7 +143,7 @@ export async function proxyChat(options: ProxyChatOptions): Promise<ProxyChatRes
     stream: false,
   };
 
-  const timeout = AbortSignal.timeout(8_000);
+  const timeout = AbortSignal.timeout(Math.max(1_000, options.timeoutMs ?? 8_000));
   const signal = options.signal ? AbortSignal.any([options.signal, timeout]) : timeout;
 
   const call = async (body: Record<string, unknown>) =>

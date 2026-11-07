@@ -72,6 +72,8 @@ export interface ExpandPayload {
   not_covered: string;
   refer: string;
   recheck: string;
+  /** True when the model failed and the action list is a local book-order fallback. */
+  degraded?: boolean;
 }
 
 /**
@@ -85,6 +87,8 @@ export interface SignTokenPayload {
   id: string;
   c: string[];
   exp: number;
+  /** True when the sign came from a local fallback rather than the model. */
+  d?: boolean;
 }
 
 export interface AskResponse {
@@ -104,6 +108,8 @@ export interface SignResponse {
   ok: true;
   question: string;
   sign: SignPayload;
+  /** True when the sign was produced by the local book-order fallback. */
+  degraded?: boolean;
   disclaimer: string;
 }
 
@@ -111,5 +117,7 @@ export interface ExpandResponse {
   ok: true;
   expand: ExpandPayload;
   citations: string[];
+  /** True when the model failed and the action list is a local fallback. */
+  degraded?: boolean;
   disclaimer: string;
 }
