@@ -41,15 +41,26 @@ describe("precompute", () => {
     expect(() => buildCuratedCacheFromMap(book, [{ question: "吃盐怎么选？", entryId: "9-9" }]))
       .toThrow("curated entry not found: 9-9");
   });
-  it("keeps a 24-char prefix for a long safe title", () => {
+  it("cuts a long safe title to at most 24 characters with an ellipsis", () => {
     const longEntry: BookEntry = {
       ...entry,
       id: "2-1",
       title: "把家里的食盐换成低钠盐并且做菜时少放酱油和腌制品多吃新鲜蔬菜",
     };
     const cache = buildCuratedCacheFromMap(bookWith(longEntry), [{ question: "长标题", entryId: "2-1" }]);
-    expect(cache["长标题"].text).toBe(longEntry.title.slice(0, 24));
+    expect(cache["长标题"].text).toBe("把家里的食盐换成低钠盐并且做菜时少放酱油和腌制…");
+    expect(Array.from(cache["长标题"].text)).toHaveLength(24);
     expect(cache["长标题"].text).not.toBe("先看第 1 节第 1 条");
+  });
+  it("cuts at the last clause boundary instead of mid-phrase", () => {
+    const longEntry: BookEntry = {
+      ...entry,
+      id: "2-3",
+      title: "租房时押金的数额、退还时间和扣减情形，必须写进合同里，还要拍照留证据",
+    };
+    const cache = buildCuratedCacheFromMap(bookWith(longEntry), [{ question: "押金条款", entryId: "2-3" }]);
+    expect(cache["押金条款"].text).toBe("租房时押金的数额、退还时间和扣减情形…");
+    expect(Array.from(cache["押金条款"].text).length).toBeLessThanOrEqual(24);
   });
   it.each([
     ["verdict", "体检发现结节最好先做手术，别拖"],

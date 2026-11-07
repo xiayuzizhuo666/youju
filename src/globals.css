@@ -112,6 +112,7 @@ button { font-family: inherit; }
 .citation p { margin: 0; }
 .citation p, .citation a { overflow-wrap: anywhere; }
 .sign-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.share-error { color: var(--vermilion-deep); margin: 8px 0 0; }
 .sign-disclaimer { color: var(--ink-muted); font-size: 12px; margin-top: 12px; }
 .book-flip { animation: flip-in 700ms cubic-bezier(.2,.7,.2,1) both; }
 @keyframes flip-in {
@@ -123,4 +124,9 @@ button { font-family: inherit; }
 .share-card { width: 1080px; height: 1440px; padding: 96px 88px; background: var(--paper); display: flex; flex-direction: column; gap: 32px; }
 .share-brand { color: var(--vermilion); letter-spacing: .3em; font-size: 24px; margin: 0; }
 .share-card .sign-text { font-size: 64px; }
+.share-card .sign-question { font-size: 30px; }
+.share-card .cost-rows { font-size: 28px; }
+.share-card .sign-plain { font-size: 30px; }
+.share-card .citation { font-size: 24px; }
+.share-card .share-note { font-size: 24px; }
 .share-note { color: var(--ink-muted); font-size: 20px; margin-top: auto; }
