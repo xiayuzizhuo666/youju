@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>有据 · 封面 1920×1080</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      body {
+        background:
+          radial-gradient(1100px 720px at 50% 36%, #fdfcf9 0%, #f8f7f4 58%, #f2f1ec 100%);
+        color: #1b1b1b;
+        font-family: "Noto Serif SC", "STSong", "Songti SC", "SimSun", serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .grain {
+        position: fixed;
+        inset: 0;
+        opacity: 0.5;
+        background-image: radial-gradient(rgba(27, 27, 27, 0.03) 0.6px, transparent 0.6px);
+        background-size: 6px 6px;
+        pointer-events: none;
+      }
+      .cover {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .title-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: -34px;
+      }
+      .brand {
+        margin: 0;
+        padding-left: 0.12em;
+        font-size: 256px;
+        line-height: 1;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: #1b1b1b;
+      }
+      .subtitle {
+        margin: 40px 0 0;
+        padding-left: 0.26em;
+        font-size: 52px;
+        line-height: 1.4;
+        font-weight: 400;
+        letter-spacing: 0.26em;
+        color: #3c3c3c;
+      }
+      .rule {
+        width: 132px;
+        height: 1px;
+        margin-top: 44px;
+        background: #b23a2e;
+      }
+      .stat {
+        margin: 30px 0 0;
+        padding-left: 0.14em;
+        font-size: 25px;
+        letter-spacing: 0.14em;
+        color: #7a7770;
+      }
+      .seal {
+        position: absolute;
+        top: 88px;
+        right: 96px;
+        width: 86px;
+        height: 86px;
+        display: grid;
+        place-items: center;
+        border-radius: 4px;
+        background: #b23a2e;
+        color: #f8f7f4;
+        font-size: 46px;
+        line-height: 1;
+        transform: rotate(-2.5deg);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+      }
+      .seal::after {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border: 1.5px solid rgba(248, 247, 244, 0.82);
+        border-radius: 2px;
+      }
+      .seal span {
+        font-weight: 600;
+        transform: translateY(-1px);
+      }
+      .attribution {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 84px;
+        margin: 0;
+        text-align: center;
+        font-size: 26px;
+        letter-spacing: 0.02em;
+        color: #6f6c66;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Paper-white cover. No official book cover, no 果麦 logo or branding. -->
+    <div class="grain"></div>
+    <main class="cover">
+      <div class="seal" aria-hidden="true"><span>据</span></div>
+      <div class="title-block">
+        <h1 class="brand">有据</h1>
+        <p class="subtitle">一本给你依据的答案之书</p>
+        <div class="rule"></div>
+        <p class="stat">772 条建议 · 34 节 · 每条都有出处</p>
+      </div>
+      <p class="attribution">内容来自《高性价比人生指南》，CC BY 4.0，有修改；不是官方版本。</p>
+    </main>
+  </body>
+</html>
