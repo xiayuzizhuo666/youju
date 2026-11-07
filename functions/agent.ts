@@ -3,14 +3,7 @@ import { routeQuestion, selectSign, expandAnswer } from "./generate.ts";
 import { classifyTriage } from "./guard.ts";
 import { retrieve } from "./lib/bm25.ts";
 import { DISCLAIMER } from "./lib/disclaimer.ts";
-import type { SignPayload } from "./lib/types.ts";
-import daily from "./data/daily-signs.json" with { type: "json" };
-
-interface DailySign {
-  date: string;
-  question: string;
-  sign: SignPayload;
-}
+import { dailySigns, type DailySign } from "./daily.ts";
 
 function json(payload: unknown, status = 200): Response {
   return new Response(JSON.stringify(payload), {
@@ -29,7 +22,7 @@ export async function handleAgent(body: Record<string, unknown>, deps: HandlerDe
 
   if (tool === "get_daily_sign") {
     const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
-    const items = daily as unknown as DailySign[];
+    const items = dailySigns as DailySign[];
     const item = items.find((entry) => entry.date === today) ?? items[0];
     return item ? json({ ok: true, result: { sign: item.sign, disclaimer: DISCLAIMER } }) : json({ ok: false, error: "no_daily_sign" }, 404);
   }

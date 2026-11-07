@@ -8,9 +8,8 @@ import { signToken, verifyToken } from "./token.ts";
 import { createLimiter } from "./demo.ts";
 import { proxyChat } from "./providers.ts";
 import { handleAgent } from "./agent.ts";
-import bookJson from "./data/book.json" with { type: "json" };
-import curatedJson from "./data/curated-cache.json" with { type: "json" };
-import dailyJson from "./data/daily-signs.json" with { type: "json" };
+import { book } from "./book.ts";
+import { dailySigns, curatedCache, type DailySign } from "./daily.ts";
 
 const MAX_BODY = 100_000;
 const TOKEN_TTL_MS = 20 * 60_000;
@@ -115,7 +114,7 @@ export function createHandler(deps: HandlerDeps) {
         }
         if (url.searchParams.get("action") === "daily") {
           const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date());
-          const items = dailyJson as { date: string; question: string; sign: SignPayload }[];
+          const items = dailySigns as DailySign[];
           const item = items.find((entry) => entry.date === today) ?? items[0];
           if (!item) return error("no_daily_sign", 404, "今天还没有签。");
           const token = await signToken(tokenFor(item.question, item.sign.entry_id, [item.sign.entry_id], deps.now()), deps.env.APP_HMAC_SECRET);
@@ -254,13 +253,13 @@ const chat: ChatFn = async (messages, options) => {
 };
 
 export const handler = createHandler({
-  book: bookJson as unknown as BookData,
+  book,
   chat,
   now: Date.now,
   env: { APP_HMAC_SECRET: hmacSecret },
   limiter: createLimiter({ maxPerIp: 30, maxGlobal: 500 }),
   expandLimiter: createLimiter({ maxPerIp: 10, maxGlobal: 200 }),
-  curated: curatedJson as Record<string, SignPayload>,
+  curated: curatedCache,
   modelKeyConfigured: Boolean(envValue("DEEPSEEK_API_KEY")),
   hmacConfigured: Boolean(configuredSecret),
 });
