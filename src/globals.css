@@ -124,7 +124,13 @@ button { font-family: inherit; }
 .share-card { width: 1080px; height: 1440px; padding: 96px 88px; background: var(--paper); display: flex; flex-direction: column; gap: 32px; }
 .share-brand { color: var(--vermilion); letter-spacing: .3em; font-size: 24px; margin: 0; }
 .share-card .sign-text { font-size: 64px; }
-.share-card .sign-question { font-size: 30px; }
+.share-card .sign-question {
+  font-size: 30px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .share-card .cost-rows { font-size: 28px; }
 .share-card .sign-plain { font-size: 30px; }
 .share-card .citation { font-size: 24px; }

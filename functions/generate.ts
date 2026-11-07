@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { BookEntry, BookSection, ExpandAction, ExpandPayload, SignPayload } from "../shared/types.ts";
+import { shortenTitle } from "../shared/text.ts";
 import { hasAbsoluteClaim, hasVerdict, unsupportedClaims } from "./guard.ts";
 import { EXPAND_SYSTEM, ROUTE_SYSTEM, SIGN_SYSTEM, expandUser, routeUser, signUser } from "./prompts.ts";
 
@@ -73,9 +74,15 @@ function passesTextGuards(text: string): boolean {
 
 function safeSignText(entry: BookEntry, text?: string): string {
   const model = text?.trim();
-  if (model && model.length <= SIGN_MAX_CHARS && passesTextGuards(model)) return model;
+  if (model) {
+    const shortened = shortenTitle(model, SIGN_MAX_CHARS);
+    if (passesTextGuards(shortened)) return shortened;
+  }
   const title = entry.title.trim();
-  if (title && passesTextGuards(title)) return title.length > SIGN_MAX_CHARS ? title.slice(0, SIGN_MAX_CHARS) : title;
+  if (title) {
+    const shortened = shortenTitle(title, SIGN_MAX_CHARS);
+    if (passesTextGuards(shortened)) return shortened;
+  }
   return neutralHeadline(entry);
 }
 

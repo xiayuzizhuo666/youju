@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import type { BookData, BookEntry, SignPayload } from "../shared/types.ts";
 import { normalizeQuestion } from "../shared/normalize.ts";
+import { shortenTitle } from "../shared/text.ts";
 import { hasAbsoluteClaim, hasVerdict } from "../functions/guard.ts";
 
 export interface DailySign {
@@ -20,16 +21,8 @@ function citationFor(entry: BookEntry): string {
   return `第 ${entry.section_no} 节第 ${entry.item_no} 条（${entry.title}）`;
 }
 
-export function cutTitle(raw: string): string {
-  if (raw.length <= 24) return raw;
-  const head = raw.slice(0, 23);
-  const lastPunct = Math.max(...["，", "。", "；", "：", "、", " "].map((p) => head.lastIndexOf(p)));
-  const cut = lastPunct >= 8 ? head.slice(0, lastPunct) : head;
-  return `${cut}…`;
-}
-
 function signFromEntry(entry: BookEntry): SignPayload {
-  const candidate = cutTitle(entry.title);
+  const candidate = shortenTitle(entry.title);
   const text = !hasVerdict(candidate) && !hasAbsoluteClaim(candidate)
     ? candidate
     : `先看第 ${entry.section_no} 节第 ${entry.item_no} 条`;

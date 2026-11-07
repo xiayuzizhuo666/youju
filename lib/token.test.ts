@@ -45,4 +45,19 @@ describe("decodeSignToken", () => {
     expect(decodeSignToken(encodeBody(JSON.stringify({ q: "问题", s: null })))).toBeNull();
     expect(decodeSignToken(encodeBody(JSON.stringify({ q: "问题", s: [] })))).toBeNull();
   });
+  it("returns null when the nested sign shape is incomplete", () => {
+    expect(decodeSignToken(encodeBody(JSON.stringify({ q: "问题", s: {} })))).toBeNull();
+    expect(decodeSignToken(encodeBody(JSON.stringify({
+      q: "问题",
+      s: { entry_id: "15-1", text: "先看合同", citation: "第 15 节第 1 条", cost: null, benefit: {} },
+    })))).toBeNull();
+    expect(decodeSignToken(encodeBody(JSON.stringify({
+      q: "问题",
+      s: { entry_id: "15-1", text: "先看合同", citation: "第 15 节第 1 条", cost: {}, benefit: null },
+    })))).toBeNull();
+  });
+  it("returns the object for a valid nested payload", () => {
+    const token = encodeBody(JSON.stringify({ ...payload, q: "问题" }));
+    expect(decodeSignToken(token)).toMatchObject({ q: "问题", s: { entry_id: payload.s.entry_id } });
+  });
 });
