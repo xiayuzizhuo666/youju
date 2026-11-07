@@ -80,7 +80,7 @@ ComSpec='C:\Windows\System32\cmd.exe' npm run build
 - [ ] `/` 首页可打开，输入框、场景卡、今日一签正常。
 - [ ] 输入“房东不退押金怎么办？”，点“翻一签”，能落到签卡。
 - [ ] 点“展开这本账”，`/expand/...` 有行动、别做清单、书里没写的、该找谁。
-- [ ] `/about` 显示来源、版本、CC BY 4.0、修改说明和“不是官方版本”。
+- [ ] `/about` 显示“什么是答案之书”：是什么、怎么用、边界。
 - [ ] `/api` 显示 Agent API 说明，`/openapi.json` 可访问。
 - [ ] `/functions/v1/app?action=health` 返回 `modelKeyConfigured` 与 `hmacConfigured` 两个布尔值；两者都为 `true` 才说明 Secrets 生效，接口不会返回值本身。
 - [ ] “存成签卡”能下载 1080×1440 PNG。
@@ -144,7 +144,7 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 需要提交：
 
 - [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`
-- [ ] 封面：`public/cover.png`（1920×1080，16:9，< 5MB，不是官方封面）
+- [ ] 封面：`public/cover.png`（1920×1080，16:9，< 5MB，自有封面）
 - [ ] 作品说明：`docs/submission.md` 的内容
 - [ ] 可选演示视频：按 `docs/demo-script.md` 录制，60–90 秒、1080p、MP4、< 500MB，放在 `docs/`，不要放进 `public/`
 - [ ] 团队：solo（1 人）

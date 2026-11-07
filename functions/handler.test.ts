@@ -5,7 +5,7 @@ import type { BookData, SignPayload } from "../shared/types";
 import type { ChatFn } from "./generate";
 
 const book: BookData = {
-  meta: { commit: "test", synced_at: "2026-11-07", total: 1, evidence: { A: 1, B: 0, C: 0 }, license: "CC BY 4.0" },
+  meta: { commit: "test", synced_at: "2026-11-07", total: 1, evidence: { A: 1, B: 0, C: 0 }, license: "" },
   sections: [{ no: 15, title: "租房与买房", intro: "", entries: [{
     id: "15-1", section_no: 15, section_title: "租房与买房", item_no: 1,
     title: "房东不退押金", cost: { money: "0", time: "少", will: "否" },

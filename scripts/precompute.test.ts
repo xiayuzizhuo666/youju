@@ -12,14 +12,14 @@ const entry: BookEntry = {
   population: [], ratio: "极高", dispute: false, todo: false,
 };
 const book: BookData = {
-  meta: { commit: "test", synced_at: "2026-11-07", total: 1, evidence: { A: 1, B: 0, C: 0 }, license: "CC BY 4.0" },
+  meta: { commit: "test", synced_at: "2026-11-07", total: 1, evidence: { A: 1, B: 0, C: 0 }, license: "" },
   sections: [{ no: 1, title: "不要早死", intro: "", entries: [entry] }],
   entries: [entry],
 };
 
 function bookWith(...entries: BookEntry[]): BookData {
   return {
-    meta: { commit: "test", synced_at: "2026-11-07", total: entries.length, evidence: { A: 1, B: 0, C: 0 }, license: "CC BY 4.0" },
+    meta: { commit: "test", synced_at: "2026-11-07", total: entries.length, evidence: { A: 1, B: 0, C: 0 }, license: "" },
     sections: [{ no: 1, title: "不要早死", intro: "", entries }],
     entries,
   };

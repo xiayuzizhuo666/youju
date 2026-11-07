@@ -1,6 +1,6 @@
 {
   "openapi": "3.0.3",
-  "info": { "title": "有据 Agent API", "version": "1.0.0", "description": "从《高性价比人生指南》翻一条有出处的签，并展开为决策账。" },
+  "info": { "title": "有据 Agent API", "version": "1.0.0", "description": "从生活建议里翻一条有出处的签，并展开为决策账。" },
   "paths": {
     "/functions/v1/app": {
       "post": {
