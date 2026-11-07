@@ -9,10 +9,13 @@ export interface DailyResponse {
 }
 
 const TIMEOUT_MS = 12_000;
+// Expand waits on one model call after token verification; it routinely reaches
+// ~10s, so the default 12s would abort responses that are still on their way.
+const EXPAND_TIMEOUT_MS = 20_000;
 
-async function request(input: string, init?: RequestInit): Promise<Response> {
+async function request(input: string, init?: RequestInit, timeoutMs = TIMEOUT_MS): Promise<Response> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (error) {
@@ -23,12 +26,12 @@ async function request(input: string, init?: RequestInit): Promise<Response> {
   }
 }
 
-async function post<T>(payload: unknown): Promise<T> {
+async function post<T>(payload: unknown, timeoutMs = TIMEOUT_MS): Promise<T> {
   const response = await request("/functions/v1/app", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
-  });
+  }, timeoutMs);
   const data = await response.json().catch(() => null);
   if (!response.ok || !data?.ok) throw new Error(data?.message ?? "请求失败，请稍后再试。");
   return data as T;
@@ -50,5 +53,5 @@ export function sign(token: string): Promise<SignResponse> {
 }
 
 export function expand(token: string): Promise<ExpandResponse> {
-  return post<ExpandResponse>({ action: "expand", token });
+  return post<ExpandResponse>({ action: "expand", token }, EXPAND_TIMEOUT_MS);
 }
