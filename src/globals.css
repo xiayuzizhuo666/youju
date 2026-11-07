@@ -136,3 +136,10 @@ button { font-family: inherit; }
 .share-card .citation { font-size: 24px; }
 .share-card .share-note { font-size: 24px; }
 .share-note { color: var(--ink-muted); font-size: 20px; margin-top: auto; }
+
+.expand-section { border-top: 1px solid var(--rule-strong); padding: 20px 0; }
+.expand-section h2 { font-size: 16px; letter-spacing: .08em; margin: 0 0 12px; }
+.expand-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; }
+.expand-action { font-size: 19px; font-weight: 600; margin: 0 0 4px; }
+.expand-meta, .expand-citation { color: var(--ink-muted); font-size: 13px; margin: 0; }
+.code-block { background: var(--paper-deep); border: 1px solid var(--rule); padding: 14px; overflow-x: auto; font-size: 13px; line-height: 1.6; }
