@@ -93,3 +93,34 @@ button { font-family: inherit; }
 .book-footer p { margin: 0; color: var(--ink-muted); }
 .book-footer nav { display: flex; gap: 18px; }
 @media (max-width: 640px) { .scene-grid { grid-template-columns: 1fr; } .book-page { padding-top: 24px; } }
+
+.sign-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 28px 26px;
+  box-shadow: 0 1px 0 var(--rule);
+}
+.sign-question { color: var(--ink-muted); font-size: 14px; margin: 0 0 18px; }
+.sign-text { font-size: clamp(26px, 5vw, 38px); line-height: 1.35; font-weight: 600; margin: 0 0 24px; }
+.cost-rows { display: grid; gap: 6px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 12px 0; margin: 0 0 18px; }
+.cost-rows div { display: grid; grid-template-columns: 64px 1fr; gap: 8px; }
+.cost-rows dt { color: var(--ink-muted); }
+.cost-rows dd { margin: 0; }
+.sign-plain { color: var(--ink-soft); margin: 0 0 18px; }
+.citation { color: var(--ink-muted); font-size: 13px; display: grid; gap: 4px; }
+.citation p { margin: 0; }
+.citation p, .citation a { overflow-wrap: anywhere; }
+.sign-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.sign-disclaimer { color: var(--ink-muted); font-size: 12px; margin-top: 12px; }
+.book-flip { animation: flip-in 700ms cubic-bezier(.2,.7,.2,1) both; }
+@keyframes flip-in {
+  from { opacity: 0; transform: perspective(900px) rotateX(-10deg) translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .book-flip { animation: none; } }
+.share-card-stage { position: fixed; left: -10000px; top: 0; }
+.share-card { width: 1080px; height: 1440px; padding: 96px 88px; background: var(--paper); display: flex; flex-direction: column; gap: 32px; }
+.share-brand { color: var(--vermilion); letter-spacing: .3em; font-size: 24px; margin: 0; }
+.share-card .sign-text { font-size: 64px; }
+.share-note { color: var(--ink-muted); font-size: 20px; margin-top: auto; }
