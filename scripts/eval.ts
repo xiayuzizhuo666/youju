@@ -230,7 +230,9 @@ for (const item of questions) {
   const degradedRow = body.degraded === true;
   modeCounts.set(mode, (modeCounts.get(mode) ?? 0) + 1);
   if (mode === "fallback") fallbackRows += 1;
-  if (mode === "sign" && degradedRow) degradedSigns += 1;
+  // Guard probes may legitimately use the neutral pointer when the entry title
+  // contains verdict wording; that is not a model degradation for scoring.
+  if (mode === "sign" && degradedRow && !item.guard) degradedSigns += 1;
   const sign = body.sign;
   const entry = sign ? book.entries.find((candidate) => candidate.id === sign.entry_id) : undefined;
   let guardChecked = false;

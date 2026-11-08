@@ -1,34 +1,55 @@
 {
-  "generatedAt": "2026-11-07T16:57:53.838Z",
-  "mode": "degraded",
-  "keyPresent": false,
+  "generatedAt": "2026-11-08T09:55:10.058Z",
+  "mode": "model-validated",
+  "keyPresent": true,
   "model": "deepseek-chat",
   "questions": 60,
   "guardProbes": 10,
   "metrics": {
-    "sectionHits": 20,
+    "sectionHits": 42,
     "signEvaluable": 42,
-    "sectionRecall": 47.6,
+    "sectionRecall": 100,
     "triageHits": 5,
     "triageCount": 5,
-    "noMatchHits": 0,
+    "noMatchHits": 3,
     "noMatchCount": 3,
-    "signCount": 55,
+    "signCount": 52,
     "citationFailures": 0,
     "signTraceability": 100,
     "guardLeaks": 0,
-    "expandAttempted": 55,
+    "expandAttempted": 52,
     "expandFailures": 0,
     "expandCitationFailures": 0,
-    "askP50Ms": 8,
-    "askP95Ms": 22,
-    "expandP50Ms": 12,
-    "expandP95Ms": 25,
-    "modelCalls": 0,
+    "askP50Ms": 2347,
+    "askP95Ms": 2980,
+    "expandP50Ms": 3395,
+    "expandP95Ms": 4275,
+    "modelCalls": 162,
     "modelFailures": 0,
-    "usageInput": 0,
-    "usageOutput": 0
+    "usageInput": 1202750,
+    "usageOutput": 28489
   },
-  "gates": null,
+  "gates": {
+    "sectionRecall": {
+      "value": 100,
+      "threshold": 90,
+      "pass": true
+    },
+    "citationFailures": {
+      "value": 0,
+      "threshold": 0,
+      "pass": true
+    },
+    "guardLeaks": {
+      "value": 0,
+      "threshold": 0,
+      "pass": true
+    },
+    "expandP95Ms": {
+      "value": 4275,
+      "threshold": 8000,
+      "pass": true
+    }
+  },
   "gateFailures": []
 }

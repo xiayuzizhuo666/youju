@@ -5,11 +5,11 @@
 ## 0. 当前状态（本地已完成）
 
 - [x] `npm run build` 通过（Vite 产物在 `dist/`，只有一个大于 500 kB 的 chunk 警告）。
-- [x] `npm test` 通过：21 个测试文件、155 个测试。
+- [x] `npm test` 通过：21 个测试文件、156 个测试。
 - [x] 封面 `docs/cover.html` 已生成，并截图到 `public/cover.png`：1920×1080、PNG、316,961 字节（约 0.30 MiB）、16:9、小于 5MB，中文逐字核对正确。
 - [x] 投稿说明 `docs/submission.md`、演示脚本 `docs/demo-script.md` 已就绪。
 - [x] 公开 URL：`https://render.qmuse.pub/p/muse/6495219290401338/index.html`（QMuse 前端；Qoder 后端继续提供模型与 Agent API）。
-- [ ] 有 key 评测结果：当前只有 no-key/degraded baseline，提交前必须替换。
+- [x] 有 key 评测结果：60 题 model-validated，章节召回 100%、引用失败 0、守卫泄漏 0、展开 p95 4.3s；见 `docs/eval-results.md`。
 
 ## 1. 环境
 
@@ -111,9 +111,9 @@ curl --fail -X POST '<public-url>/functions/v1/app' \
 - 如果配置了 `AGENT_API_KEY`，不带 `Authorization: Bearer <key>` 会返回 401；未配置则开放。
 - 如果返回 429，说明演示额度用尽（见第 7 节），响应头 `Retry-After` 是等待秒数，不是故障。
 
-## 7. owner：有 key 评测（必须，提交前）
+## 7. 有 key 评测（已完成）
 
-当前 `docs/eval-results.md` 是 **no-key/degraded baseline**，不能作为模型效果或门槛证据。用 owner 的 key 在本地重跑：
+2026-11-08 已用临时 key 重跑 60 题：**model-validated**，章节召回 42/42（100%），分流 5/5，无关 3/3，引用失败 0，展开引用失败 0，守卫泄漏 0，展开 p95 4,275ms；20 条抽检 16/20 达标（4 条偏题已记录）。以下命令保留给后续复测：
 
 ```bash
 cd /f/Qoder_game/youju
@@ -125,11 +125,11 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 - key 只注入本次进程环境，不写 `.env`、不提交；命令历史可能留下明文，跑完清理 shell 历史或改用安全的注入方式。
 - eval 在进程内调用 handler，不经过公开 URL，因此不会被线上 30 次/IP/天的额度影响；一次完整运行约 55 次章节路由 + 55 次选签 + 55 次展开的模型请求（分流题不路由），会产生少量费用。
 - 若需要成本估算，额外注入 `EVAL_INPUT_PRICE_PER_M` / `EVAL_OUTPUT_PRICE_PER_M`（元/百万 token）；不注入时报告只记录 token 用量，不编造成本。
-- 运行结束后，用新结果替换：
-  - `docs/eval-results.md`（整份报告由脚本生成，含 ask / expand 延迟、展开引用失败、token 与成本）；
-  - `docs/submission.md` 的“评测”表格与文字，删除“no-key/degraded baseline”的当前数字；
-  - `docs/eval-human-review.md` 的 20 条人工复核（按新 CSV 重新抽前 20 条签行评分）。
-- 在新结果出来之前，对外只说“本地降级基线”，不引用 90% 章节召回门槛作为已通过。
+- 复测后更新：
+  - `docs/eval-results.md`（脚本生成，含 ask / expand 延迟、展开引用失败、token 与成本）；
+  - `docs/submission.md` 的“评测”表格与文字；
+  - `docs/eval-human-review.md` 的 20 条抽样评分。
+- 本轮已完成并把 4 条偏题（rent-03、relation-02、safety-01、adv-06）列入下一轮候选增强；引用校验不放宽。
 
 线上额度（部署后的真实限制，写进投稿说明即可，不是本地 eval 的限制）：
 

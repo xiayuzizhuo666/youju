@@ -31,6 +31,8 @@ const care = entry("24-5", 24, "每次看完病，把病历、检查报告和影
 const kidneyStone = entry("16-8", 16, "得过肾结石就把水喝到每天 2.5–3 升");
 const tumorScreen = entry("6-7", 6, "不要给没有症状的自己做「全身 PET-CT」或「肿瘤标志物套餐」");
 const tumorInsurance = entry("16-2", 16, "先办门诊慢特病认定再办异地备案，放化疗、透析、抗排异就能异地直接结算");
+const sedentary = entry("2-1", 2, "久坐一天，每隔一小时起来走两分钟");
+const relaxation = entry("22-1", 22, "心情差到抑郁的程度，就去走或者跑");
 
 describe("health relevance", () => {
   it("detects health questions without treating unrelated questions as health", () => {
@@ -60,6 +62,10 @@ describe("health relevance", () => {
 
   it("keeps a candidate that directly mentions the condition", () => {
     expect(preferHealthEntry("胆囊结石要不要切胆囊？", generic, [generic, gallstone]).id).toBe("6-20");
+  });
+
+  it("routes a sedentary question to a movement entry instead of a mood entry", () => {
+    expect(preferHealthEntry("久坐一天怎么动？", relaxation, [relaxation, sedentary]).id).toBe("2-1");
   });
 
   it("prefers care navigation for a possible diagnosis over a screening reminder", () => {
