@@ -136,6 +136,7 @@ button { font-family: inherit; }
 .history-question { color: var(--ink-muted); font-size: 13px; margin: 0 0 4px; }
 .history-text { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
 .history-meta { color: var(--ink-muted); font-size: 12px; margin: 0; }
+.history-reopen { display: inline-block; margin-top: 6px; font-size: 13px; }
 .book-flip { animation: flip-in 700ms cubic-bezier(.2,.7,.2,1) both; }
 @keyframes flip-in {
   from { opacity: 0; transform: perspective(900px) rotateX(-10deg) translateY(10px); }
@@ -158,6 +159,12 @@ button { font-family: inherit; }
 .share-card .citation { font-size: 24px; }
 .share-card .share-note { font-size: 24px; }
 .share-note { color: var(--ink-muted); font-size: 20px; margin-top: auto; }
+.share-footer { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.share-credit { max-width: 620px; }
+.share-footer .share-note { margin-top: 0; }
+.share-source { color: var(--ink-muted); font-size: 14px; margin: 6px 0 0; overflow-wrap: anywhere; }
+.share-qr { display: grid; justify-items: center; gap: 8px; color: var(--ink-muted); font-size: 20px; }
+.share-qr img { display: block; width: 160px; height: 160px; }
 
 .expand-section { border-top: 1px solid var(--rule-strong); padding: 20px 0; }
 .expand-section h2 { font-size: 16px; letter-spacing: .08em; margin: 0 0 12px; }

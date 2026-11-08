@@ -3,7 +3,7 @@ import { retrieve } from "./lib/bm25.ts";
 import { DISCLAIMER } from "./lib/disclaimer.ts";
 import { normalizeQuestion } from "./lib/normalize.ts";
 import { classifyTriage } from "./guard.ts";
-import { routeQuestion, selectSign, expandAnswer, signFromEntry, type ChatFn } from "./generate.ts";
+import { routeQuestion, selectSign, expandAnswer, signFromEntry, healthSupportCandidates, type ChatFn } from "./generate.ts";
 import { signToken, verifyToken } from "./token.ts";
 import { createLimiter, type Limiter } from "./demo.ts";
 import { cacheKey, createCache } from "./cache.ts";
@@ -13,7 +13,7 @@ import { book } from "./book.ts";
 import { dailySigns, curatedCache, type DailySign } from "./daily.ts";
 
 const MAX_BODY = 100_000;
-const TOKEN_TTL_MS = 20 * 60_000;
+const TOKEN_TTL_MS = 7 * 24 * 60 * 60_000;
 const MAX_TOKEN_CANDIDATES = 12;
 
 export interface HandlerDeps {
@@ -248,7 +248,8 @@ export function createHandler(deps: HandlerDeps) {
           return json(response);
         }
 
-        const result = await selectSign(deps.chat, question, candidates);
+        const signCandidates = healthSupportCandidates(question, candidates, deps.book.entries);
+        const result = await selectSign(deps.chat, question, signCandidates);
         if (result.degraded && cached) return fallbackResponse(question, cached, candidates.slice(0, 8).map((entry) => entry.id));
         if (result.mode === "no_match" || !result.sign) {
           if (cached) return fallbackResponse(question, cached, retrievalIds(question));

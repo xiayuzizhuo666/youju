@@ -21,7 +21,7 @@ describe("token", () => {
   it("rejects a fabricated body with a wrong signature", async () => {
     const forged = JSON.stringify({ ...payload, id: "1-1" });
     const body = btoa(unescape(encodeURIComponent(forged))).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
-    await expect(verifyToken(`${body}.deadbeef`, "secret")).resolves.toBeNull();
+    await expect(verifyToken(`${body}~deadbeef`, "secret")).resolves.toBeNull();
   });
   it("rejects a token signed with a different secret", async () => {
     const token = await signToken(payload, "secret");

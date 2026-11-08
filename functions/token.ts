@@ -21,12 +21,12 @@ async function keyFor(secret: string): Promise<CryptoKey> {
 export async function signToken(payload: SignTokenPayload, secret: string): Promise<string> {
   const body = b64url(encoder.encode(JSON.stringify(payload)));
   const signature = await crypto.subtle.sign("HMAC", await keyFor(secret), encoder.encode(body));
-  return `${body}.${b64url(new Uint8Array(signature))}`;
+  return `${body}~${b64url(new Uint8Array(signature))}`;
 }
 
 export async function verifyToken<T extends { exp: number }>(token: string, secret: string): Promise<T | null> {
   try {
-    const [body, signature] = token.split(".");
+    const [body, signature] = token.split("~");
     if (!body || !signature) return null;
     const expected = await crypto.subtle.sign("HMAC", await keyFor(secret), encoder.encode(body));
     if (b64url(new Uint8Array(expected)) !== signature) return null;

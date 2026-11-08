@@ -37,6 +37,12 @@ describe("history", () => {
     expect(store.list().map((item) => item.entryId)).toEqual(["19-4", "15-1"]);
   });
 
+  it("stores a signed token so the history entry can be reopened", () => {
+    const store = createHistoryStore(memoryStorage());
+    store.record("房东不退押金怎么办", sign, atNoon(2026, 11, 8), "signed-token");
+    expect(store.list()[0].token).toBe("signed-token");
+  });
+
   it("deduplicates the same entry and question", () => {
     const store = createHistoryStore(memoryStorage());
     store.record("房东不退押金怎么办", sign, atNoon(2026, 11, 7));

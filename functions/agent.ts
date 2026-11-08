@@ -1,5 +1,5 @@
 import type { HandlerDeps } from "./handler.ts";
-import { routeQuestion, selectSign, expandAnswer, type ChatFn } from "./generate.ts";
+import { routeQuestion, selectSign, expandAnswer, healthSupportCandidates, type ChatFn } from "./generate.ts";
 import { classifyTriage } from "./guard.ts";
 import { retrieve } from "./lib/bm25.ts";
 import { DISCLAIMER } from "./lib/disclaimer.ts";
@@ -68,7 +68,8 @@ export async function handleAgent(body: Record<string, unknown>, deps: HandlerDe
       : deps.book.entries;
     const { candidates } = retrieve(pool, question, 20);
     if (candidates.length === 0) return json({ ok: true, result: { mode: "no_match", disclaimer: DISCLAIMER } });
-    const selected = await selectSign(chat, question, candidates);
+    const signCandidates = healthSupportCandidates(question, candidates, deps.book.entries);
+    const selected = await selectSign(chat, question, signCandidates);
     if (selected.mode !== "sign" || !selected.sign) return json({ ok: true, result: { mode: "no_match", disclaimer: DISCLAIMER } });
     const expand = await expandAnswer(chat, question, selected.sign, candidates);
     return json({

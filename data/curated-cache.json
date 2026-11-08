@@ -60,32 +60,24 @@
     ]
   },
   "体检发现结节要不要手术": {
-    "entry_id": "6-20",
-    "text": "不要因为体检查出胆囊结石、但从没疼过…",
-    "plain": "胆囊里有石头、但从没疼过的人，近九年里约八成一直没出症状。不动它，每年出胆囊炎、胰腺炎这类急症的约千分之一到千分之三。切胆囊也不是零风险，约 1.5% 的人胆管会被伤到。所以欧洲和英国的指南都说，没症状先不切。",
+    "entry_id": "24-5",
+    "text": "每次看完病，把病历、检查报告和影像自己存一份",
+    "plain": "查阅和复制自己的病历，是法律给你的权利。门诊病历、住院志、化验单、影像、手术和麻醉记录、病理资料、费用清单都能复制。医院要指定专门的部门或人员受理，只能收工本费。换医院、找别的医生再看一遍、报商业保险、真起了纠纷，凭的都是这一摞材料。",
     "cost": {
       "money": "0",
       "time": "少",
-      "will": "否"
+      "will": "些"
     },
     "benefit": {
       "level": "中",
-      "metric": "死亡率"
+      "metric": "金钱"
     },
     "evidence": "A",
-    "citation": "第 6 节第 20 条（不要因为体检查出胆囊结石、但从没疼过，就去预防性切胆囊）",
-    "source_text": "Festi D, Reggiani ML, Attili AF, et al. (2010). Natural history of gallstone disease: Expectant management or active treatment? Results from a population-based cohort study. Journal of Gastroenterology and Hepatology, 25(4), 719-724. <https://doi.org/10.1111/j.1440-1746.2009.06146.x>；McSherry CK, Ferstenberg H, Calhoun WF, Lahman E, Virshup M (1985). The natural history of diagnosed gallstone disease in symptomatic and asymptomatic patients. Annals of Surgery, 202(1), 59-63. <https://doi.org/10.1097/00000658-198507000-00009>；National Institute for Health and Care Excellence (2014). Gallstone disease: diagnosis and management. NICE guideline CG188，第 1.2.1、1.3.1 条. <https://www.nice.org.uk/guidance/cg188/chapter/Recommendations>；European Association for the Study of the Liver (2016). EASL Clinical Practice Guidelines on the prevention, diagnosis and treatment of gallstones. Journal of Hepatology, 65(1), 146-181. <https://doi.org/10.1016/j.jhep.2016.03.005>；Törnqvist B, Strömberg C, Persson G, Nilsson M (2012). Effect of intended intraoperative cholangiography and early detection of bile duct injury on survival after cholecystectomy: population based cohort study. BMJ, 345, e6457. <https://doi.org/10.1136/bmj.e6457>；Ransohoff DF, Gracie WA, Wolfenson LB, Neuhauser D (1983). Prophylactic cholecystectomy or expectant management for silent gallstones. A decision analysis to assess survival. Annals of Internal Medicine, 99(2), 199-204. <https://doi.org/10.7326/0003-4819-99-2-199>；Gurusamy KS, Samraj K (2007). Cholecystectomy versus no cholecystectomy in patients with silent gallstones. Cochrane Database of Systematic Reviews, CD006230. <https://doi.org/10.1002/14651858.CD006230.pub2>；反方：Venneman NG, Buskens E, Besselink MG, et al. (2005). Small gallstones are associated with increased risk of acute pancreatitis: potential benefits of prophylactic cholecystectomy? American Journal of Gastroenterology, 100(11), 2540-2550. <https://doi.org/10.1111/j.1572-0241.2005.00317.x>；中华医学会外科学分会胆道外科学组, 中国医师协会外科医师分会胆道外科医师委员会 (2022). 胆囊良性疾病外科治疗的专家共识（2021版）. 中华外科杂志, 60(1), 4-9. <https://doi.org/10.3760/cma.j.cn112139-20210811-00373>（全文需订阅，未取得）；同上 (2022). 《胆囊良性疾病外科治疗的专家共识（2021版）》解读. 中华外科杂志, 60(4), 337-342. <https://doi.org/10.3760/cma.j.cn112139-20220119-00031>",
+    "citation": "第 24 节第 5 条（每次看完病，把病历、检查报告和影像自己存一份）",
+    "source_text": "国务院 (2018). 医疗纠纷预防和处理条例（国务院令第 701 号）第十六条：「患者有权查阅、复制其门诊病历、住院志、体温单、医嘱单、化验单（检验报告）、医学影像检查资料、特殊检查同意书、手术同意书、手术及麻醉记录、病理资料、护理记录、医疗费用以及国务院卫生主管部门规定的其他属于病历的全部资料。」「患者要求复制病历资料的，医疗机构应当提供复制服务，并在复制的病历资料上加盖证明印记……可以收取工本费，收费标准应当公开。」「患者死亡的，其近亲属可以依照本条例的规定，查阅、复制病历资料。」第十五条「任何单位和个人不得篡改、伪造、隐匿、毁灭或者抢夺病历资料。」<https://www.gov.cn/zhengce/zhengceku/2018-08/31/content_5318057.htm>；国家卫生计生委、国家中医药管理局 (2013). 医疗机构病历管理规定（2013 年版）：医疗机构「应当指定部门或者专（兼）职人员负责受理复制病历资料的申请」，复制在申请人在场的情况下进行并加盖证明印记. <http://www.gov.cn/gongbao/content/2014/content_2600084.htm>",
     "source_links": [
-      "https://doi.org/10.1111/j.1440-1746.2009.06146.x",
-      "https://doi.org/10.1097/00000658-198507000-00009",
-      "https://www.nice.org.uk/guidance/cg188/chapter/Recommendations",
-      "https://doi.org/10.1016/j.jhep.2016.03.005",
-      "https://doi.org/10.1136/bmj.e6457",
-      "https://doi.org/10.7326/0003-4819-99-2-199",
-      "https://doi.org/10.1002/14651858.CD006230.pub2",
-      "https://doi.org/10.1111/j.1572-0241.2005.00317.x",
-      "https://doi.org/10.3760/cma.j.cn112139-20210811-00373",
-      "https://doi.org/10.3760/cma.j.cn112139-20220119-00031"
+      "https://www.gov.cn/zhengce/zhengceku/2018-08/31/content_5318057.htm",
+      "http://www.gov.cn/gongbao/content/2014/content_2600084.htm"
     ]
   },
   "熬夜怎么补救": {

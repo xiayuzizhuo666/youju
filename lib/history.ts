@@ -6,6 +6,8 @@ export interface HistoryItem {
   citation: string;
   entryId: string;
   savedAt: number;
+  /** Signed sign token; older records may not have one. */
+  token?: string;
 }
 
 export interface HistoryData {
@@ -36,7 +38,8 @@ function isItem(value: unknown): value is HistoryItem {
     && typeof item.citation === "string"
     && typeof item.entryId === "string"
     && typeof item.savedAt === "number"
-    && Number.isFinite(item.savedAt);
+    && Number.isFinite(item.savedAt)
+    && (item.token === undefined || typeof item.token === "string");
 }
 
 function isDay(value: unknown): value is string {
@@ -85,7 +88,7 @@ export function createHistoryStore(storage: HistoryStorage | null = defaultStora
     return read().items;
   }
 
-  function record(question: string, sign: SignPayload, now = Date.now()): HistoryItem[] {
+  function record(question: string, sign: SignPayload, now = Date.now(), token?: string): HistoryItem[] {
     const data = read();
     const item: HistoryItem = {
       question: question.trim().slice(0, 200),
@@ -93,6 +96,7 @@ export function createHistoryStore(storage: HistoryStorage | null = defaultStora
       citation: sign.citation,
       entryId: sign.entry_id,
       savedAt: now,
+      ...(token ? { token } : {}),
     };
     const key = `${item.entryId}\u0000${item.question}`;
     const items = [

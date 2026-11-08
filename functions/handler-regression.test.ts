@@ -64,7 +64,7 @@ const request = (body: unknown) => new Request("http://localhost/functions/v1/ap
 });
 
 function tokenBody(token: string): Record<string, unknown> {
-  const body = token.split(".")[0];
+  const body = token.split("~")[0];
   const padded = body.replaceAll("-", "+").replaceAll("_", "/") + "=".repeat((4 - body.length % 4) % 4);
   const binary = atob(padded);
   const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
@@ -75,7 +75,7 @@ function forgeToken(payload: Record<string, unknown>): string {
   const bytes = new TextEncoder().encode(JSON.stringify(payload));
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
-  return `${btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "")}.deadbeef`;
+  return `${btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "")}~deadbeef`;
 }
 
 describe("handler regression", () => {
@@ -159,6 +159,7 @@ describe("handler regression", () => {
     expect(body.q).toBe("房东不退押金怎么办");
     expect(body).not.toHaveProperty("s");
     expect(ask.signToken.length).toBeLessThan(1200);
+    expect(Number(body.exp) - Date.now()).toBeGreaterThan(6 * 24 * 60 * 60_000);
   });
 
   it("hydrates the sign from the verified token, not from the token body", async () => {

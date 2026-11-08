@@ -32,6 +32,7 @@ export function HistoryPage() {
               <p className="history-meta">
                 {item.citation} · {new Date(item.savedAt).toLocaleDateString("zh-CN")}
               </p>
+              {item.token && !item.token.includes(".") ? <a className="history-reopen" href={`/sign/${item.token}`}>再看一次</a> : null}
             </li>
           ))}
         </ol>

@@ -9,7 +9,7 @@ export type DecodedSignToken = Pick<SignTokenPayload, "q" | "id" | "c" | "exp">;
  */
 export function decodeSignToken(token: string): DecodedSignToken | null {
   try {
-    const body = token.split(".")[0];
+    const body = token.split("~")[0];
     if (!body) return null;
     const padded = body.replaceAll("-", "+").replaceAll("_", "/") + "=".repeat((4 - body.length % 4) % 4);
     const binary = atob(padded);

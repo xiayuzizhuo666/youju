@@ -5,7 +5,7 @@
 ## 0. 当前状态（本地已完成）
 
 - [x] `npm run build` 通过（Vite 产物在 `dist/`，只有一个大于 500 kB 的 chunk 警告）。
-- [x] `npm test` 通过：20 个测试文件、139 个测试。
+- [x] `npm test` 通过：21 个测试文件、148 个测试。
 - [x] 封面 `docs/cover.html` 已生成，并截图到 `public/cover.png`：1920×1080、PNG、316,961 字节（约 0.30 MiB）、16:9、小于 5MB，中文逐字核对正确。
 - [x] 投稿说明 `docs/submission.md`、演示脚本 `docs/demo-script.md` 已就绪。
 - [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）。
@@ -82,10 +82,10 @@ ComSpec='C:\Windows\System32\cmd.exe' npm run build
 - [ ] 输入“房东不退押金怎么办？”，点“翻一签”，能落到签卡。
 - [ ] 点“展开这本账”，`/expand/...` 有行动、别做清单、书里没写的、该找谁。
 - [ ] `/about` 显示“什么是答案之书”：是什么、怎么用、记录、边界。
-- [ ] `/history` 显示本机翻签记录、连续天数与清空按钮；刷新后记录仍在。
+- [ ] `/history` 显示本机翻签记录、连续天数与清空按钮；刷新后记录仍在，“再看一次”能直接打开原签。
 - [ ] `/api` 显示 Agent API 说明，`/openapi.json` 可访问。
 - [ ] `/functions/v1/app?action=health` 返回 `modelKeyConfigured`、`hmacConfigured`、`agentKeyConfigured` 三个布尔值；前两者都为 `true` 才说明 Secrets 生效，接口不会返回值本身。
-- [ ] “存成签卡”能下载 1080×1440 PNG。
+- [ ] “存成签卡”能下载 1080×1440 PNG，图内含站点二维码和 CC BY 4.0 署名。
 - [ ] 手机浏览器可用，无横向滚动、无遮挡。
 
 若公开 URL 在中国大陆不可达或 TTFB 不可接受：把同一份 `dist/` + `functions/` 部署到阿里云 OSS + Function Compute 或腾讯云静态托管 + SCF，并更新投稿 URL。代码不需要改。

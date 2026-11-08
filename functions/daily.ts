@@ -19,7 +19,7 @@ const CURATED = [
   { question: "房东不退押金怎么办", entryId: "15-1" },
   { question: "被裁了第一步做什么", entryId: "19-4" },
   { question: "朋友让我替他担保签不签", entryId: "8-18" },
-  { question: "体检发现结节要不要手术", entryId: "6-20" },
+  { question: "体检发现结节要不要手术", entryId: "24-5" },
   { question: "熬夜怎么补救", entryId: "3-2" },
   { question: "结婚划不划算", entryId: "10-9" },
   { question: "遇到电信诈骗怎么办", entryId: "8-2" },
@@ -43,11 +43,25 @@ function isDailyCandidate(entry: BookEntry): boolean {
     && !entry.dispute;
 }
 
+function dailyPool(entries: BookEntry[], days: number): BookEntry[] {
+  const primary = entries.filter(isDailyCandidate);
+  if (primary.length >= days) return primary;
+  const primaryIds = new Set(primary.map((entry) => entry.id));
+  const secondary = entries.filter((entry) =>
+    entry.evidence === "A"
+    && (entry.benefit.level === "大" || entry.benefit.level === "中")
+    && entry.cost.money !== "多"
+    && !entry.dispute
+    && !primaryIds.has(entry.id)
+  );
+  return [...primary, ...secondary];
+}
+
 export function buildDailySigns(data: BookData, days: number): DailySign[] {
-  const candidates = data.entries.filter(isDailyCandidate);
-  const pool = candidates.length > 0 ? candidates : data.entries;
+  const pool = dailyPool(data.entries, days);
+  const safePool = pool.length > 0 ? pool : data.entries;
   return Array.from({ length: days }, (_, index) => {
-    const entry = pool[index % pool.length];
+    const entry = safePool[index % safePool.length];
     return {
       date: dateFor(index),
       question: DAILY_QUESTIONS[index % DAILY_QUESTIONS.length],

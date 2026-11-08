@@ -38,7 +38,7 @@ export function SignPage({ token }: { token: string }) {
         setState({ sign: result.sign, question: result.question, degraded: result.degraded === true });
         if (recordedToken.current !== token) {
           recordedToken.current = token;
-          history.record(result.question, result.sign);
+          history.record(result.question, result.sign, Date.now(), token);
         }
       })
       .catch((err) => {

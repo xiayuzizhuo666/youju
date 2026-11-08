@@ -28,5 +28,8 @@ describe("global footer", () => {
     }
     expect(about).toContain("不是官方版本");
     expect(about).toContain("有修改");
+    expect(share).toContain("/qr.png");
+    expect(share).toContain("github.com/eternity4719/HowToLiveBetter");
+    expect(share).toContain("creativecommons.org/licenses/by/4.0/");
   });
 });

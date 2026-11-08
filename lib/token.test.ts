@@ -18,11 +18,11 @@ function encodeBody(json: string): string {
 
 describe("decodeSignToken", () => {
   it("decodes only the compact envelope", () => {
-    const token = `${encodeBody(JSON.stringify(payload))}.deadbeef`;
+    const token = `${encodeBody(JSON.stringify(payload))}~deadbeef`;
     expect(decodeSignToken(token)).toEqual(payload);
   });
   it("round-trips a valid token with a signature suffix", () => {
-    const token = `${encodeBody(JSON.stringify(payload))}.deadbeef`;
+    const token = `${encodeBody(JSON.stringify(payload))}~deadbeef`;
     expect(decodeSignToken(token)).toMatchObject({ q: payload.q, id: payload.id });
   });
   it("does not trust a sign payload in the token", () => {

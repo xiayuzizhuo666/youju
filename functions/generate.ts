@@ -12,6 +12,56 @@ const SIGN_MAX_CHARS = 24;
 const RATIO_RANK: Record<string, number> = { 极高: 0, 高: 1, 一般: 2 };
 const EVIDENCE_RANK: Record<string, number> = { A: 0, B: 1, C: 2 };
 
+const HEALTH_SPECIFIC =
+  /结节|肿瘤|癌|结石|囊肿|息肉|骨折|糖尿病|高血压|血压|血糖|血脂|尿酸|甲状腺|乳腺|胆囊|胰腺|前列腺|子宫|卵巢|肺|肝|肾|胃|肠|心脏|脑|膝盖|关节|手术|化疗|放疗|穿刺|活检|靶向|骨质疏松|乙肝|丙肝|艾滋|幽门|贫血|失眠|抑郁|焦虑/;
+const HEALTH_GENERAL = /体检|复查|检查报告|报告|专科|医生|医院|门诊|住院|吃药|用药/;
+const HEALTH_SUPPORT_IDS = ["24-5", "24-6", "24-3", "24-1"];
+
+function entryText(entry: BookEntry): string {
+  return `${entry.title}${entry.plain}${entry.notes}`;
+}
+
+export function isHealthQuestion(question: string): boolean {
+  return HEALTH_SPECIFIC.test(question) || HEALTH_GENERAL.test(question);
+}
+
+/** Ensure a health question can see direct condition matches and care-navigation entries. */
+export function healthSupportCandidates(question: string, candidates: BookEntry[], all: BookEntry[]): BookEntry[] {
+  if (!isHealthQuestion(question)) return candidates;
+  const terms = [...new Set(question.match(HEALTH_SPECIFIC) ?? [])];
+  const score = (entry: BookEntry) => terms.filter((term) => entryText(entry).includes(term)).length;
+  const direct = terms.length === 0 ? [] : all
+    .filter((entry) => score(entry) > 0)
+    .sort((a, b) => score(b) - score(a))
+    .slice(0, 5);
+  const merged = [
+    ...candidates,
+    ...direct.filter((entry) => !candidates.some((candidate) => candidate.id === entry.id)),
+  ];
+  if (merged.some((entry) => entry.section_no === 24)) return merged;
+  const support = HEALTH_SUPPORT_IDS
+    .map((id) => all.find((entry) => entry.id === id))
+    .filter((entry): entry is BookEntry => Boolean(entry));
+  return [...merged, ...support];
+}
+
+/**
+ * Keep the model's choice when it matches a condition/procedure in the question.
+ * If it only picked a generic "体检/保健" reminder, prefer a care-navigation
+ * entry from section 24 instead of answering a different question.
+ */
+export function preferHealthEntry(question: string, chosen: BookEntry, candidates: BookEntry[]): BookEntry {
+  if (!isHealthQuestion(question)) return chosen;
+  const terms = [...new Set(question.match(HEALTH_SPECIFIC) ?? [])];
+  if (terms.length === 0) return chosen;
+  const score = (entry: BookEntry) => terms.filter((term) => entryText(entry).includes(term)).length;
+  const best = candidates.reduce((current, entry) => score(entry) > score(current) ? entry : current, chosen);
+  if (score(best) > 0) return score(chosen) >= score(best) ? chosen : best;
+  return HEALTH_SUPPORT_IDS
+    .map((id) => candidates.find((entry) => entry.id === id))
+    .find((entry): entry is BookEntry => Boolean(entry)) ?? chosen;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
@@ -160,9 +210,14 @@ export async function selectSign(chat: ChatFn, question: string, candidates: Boo
       // id discards the text and degrades to the top candidate's own sign.
       return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true };
     }
-    const sign = signFromEntry(chosen, modelText);
-    if (unsupportedClaims(sign.text, [chosen]).length > 0) return { mode: "sign" as const, sign: signFromEntry(chosen), candidates: fallbackIds, degraded: true };
-    return { mode: "sign" as const, sign, candidates: asStringArray(parsed.candidates, 8).filter((id) => byId.has(id)), degraded: false };
+    const preferred = preferHealthEntry(question, chosen, candidates);
+    const sign = signFromEntry(preferred, preferred.id === chosen.id ? modelText : undefined);
+    if (unsupportedClaims(sign.text, [preferred]).length > 0) {
+      return { mode: "sign" as const, sign: signFromEntry(preferred), candidates: fallbackIds, degraded: true };
+    }
+    const candidateIds = asStringArray(parsed.candidates, 8).filter((id) => byId.has(id));
+    if (!candidateIds.includes(preferred.id)) candidateIds.unshift(preferred.id);
+    return { mode: "sign" as const, sign, candidates: candidateIds, degraded: false };
   } catch (error) {
     console.warn("generate_sign_failed", error instanceof Error ? error.message : error);
     return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true };

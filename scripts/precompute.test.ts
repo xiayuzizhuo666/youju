@@ -70,6 +70,14 @@ describe("precompute", () => {
     const cache = buildCuratedCacheFromMap(bookWith(flaggedEntry), [{ question: "敏感标题", entryId: "2-2" }]);
     expect(cache["敏感标题"].text).toBe("先看第 1 节第 1 条");
   });
+  it("fills the daily pool with mid-benefit candidates instead of repeating primary entries", () => {
+    const primaryB: BookEntry = { ...entry, id: "1-2" };
+    const midA: BookEntry = { ...entry, id: "1-3", benefit: { level: "中", metric: "健康" } };
+    const midB: BookEntry = { ...entry, id: "1-4", benefit: { level: "中", metric: "健康" } };
+    const days = buildDailySigns(bookWith(entry, primaryB, midA, midB), 4);
+    expect(new Set(days.map((day) => day.sign.entry_id)).size).toBe(4);
+  });
+
   it("excludes disputed entries from the daily candidate pool", () => {
     const disputed: BookEntry = { ...entry, id: "1-2", dispute: true };
     const days = buildDailySigns(bookWith(entry, disputed), 4);

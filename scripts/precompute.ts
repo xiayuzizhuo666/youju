@@ -43,13 +43,27 @@ function isDailyCandidate(entry: BookEntry): boolean {
   return !entry.dispute && entry.evidence === "A" && entry.benefit.level === "大" && entry.cost.money !== "多";
 }
 
+function dailyPool(entries: BookEntry[], days: number): BookEntry[] {
+  const primary = entries.filter(isDailyCandidate);
+  if (primary.length >= days) return primary;
+  const primaryIds = new Set(primary.map((entry) => entry.id));
+  const secondary = entries.filter((entry) =>
+    entry.evidence === "A"
+    && (entry.benefit.level === "大" || entry.benefit.level === "中")
+    && entry.cost.money !== "多"
+    && !entry.dispute
+    && !primaryIds.has(entry.id)
+  );
+  return [...primary, ...secondary];
+}
+
 export function buildDailySigns(book: BookData, days: number): DailySign[] {
-  const candidates = book.entries.filter(isDailyCandidate);
-  const pool = candidates.length > 0 ? candidates : book.entries;
+  const pool = dailyPool(book.entries, days);
+  const safePool = pool.length > 0 ? pool : book.entries;
   const start = new Date("2026-11-07T00:00:00+08:00").getTime();
   return Array.from({ length: days }, (_, index) => {
     const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai" }).format(new Date(start + index * 86_400_000));
-    const entry = pool[index % pool.length];
+    const entry = safePool[index % safePool.length];
     const question = DAILY_QUESTIONS[index % DAILY_QUESTIONS.length];
     return { date, question, sign: signFromEntry(entry) };
   });
@@ -73,7 +87,7 @@ const CURATED = [
   { question: "房东不退押金怎么办", entryId: "15-1" },
   { question: "被裁了第一步做什么", entryId: "19-4" },
   { question: "朋友让我替他担保签不签", entryId: "8-18" },
-  { question: "体检发现结节要不要手术", entryId: "6-20" },
+  { question: "体检发现结节要不要手术", entryId: "24-5" },
   { question: "熬夜怎么补救", entryId: "3-2" },
   { question: "结婚划不划算", entryId: "10-9" },
   { question: "遇到电信诈骗怎么办", entryId: "8-2" },

@@ -1,3 +1,5 @@
+import bookMeta from "../data/book-meta.json";
+
 export function AboutPage() {
   return (
     <main className="book-page about-page">
@@ -27,6 +29,7 @@ export function AboutPage() {
           <a href="https://github.com/eternity4719/HowToLiveBetter" target="_blank" rel="noreferrer">HowToLiveBetter</a>
           ），按 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a> 许可使用，有修改；不是官方版本，也不代表原作者或出版方。
         </p>
+        <p>本书正文同步于 {bookMeta.synced_at.slice(0, 10)}（commit {bookMeta.commit.slice(0, 7)}）。</p>
       </section>
     </main>
   );
