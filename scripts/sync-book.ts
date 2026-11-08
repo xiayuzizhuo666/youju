@@ -20,7 +20,7 @@ const evidence = { A: 0, B: 0, C: 0 } as Record<"A" | "B" | "C", number>;
 for (const entry of entries) evidence[entry.evidence] += 1;
 
 const book: BookData = {
-  meta: { commit, synced_at: new Date().toISOString(), total: entries.length, evidence, license: "" },
+  meta: { commit, synced_at: new Date().toISOString(), total: entries.length, evidence, license: "CC BY 4.0" },
   sections,
   entries,
 };

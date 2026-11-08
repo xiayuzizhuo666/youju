@@ -20,6 +20,14 @@ export function AboutPage() {
         <h2>边界</h2>
         <p>急症先打 120，心理危机先打 12356，正在进行的法律程序先找律师。通用口径，不替代医生、律师、会计。</p>
       </section>
+      <section className="expand-section">
+        <h2>来源与许可</h2>
+        <p>
+          内容来自《高性价比人生指南》（
+          <a href="https://github.com/eternity4719/HowToLiveBetter" target="_blank" rel="noreferrer">HowToLiveBetter</a>
+          ），按 <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a> 许可使用，有修改；不是官方版本，也不代表原作者或出版方。
+        </p>
+      </section>
     </main>
   );
 }

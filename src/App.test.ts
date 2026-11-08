@@ -10,12 +10,23 @@ describe("global footer", () => {
     expect(source).toContain("<p>{DISCLAIMER}</p>");
   });
 
-  it("links to the answer-book explanation and carries no source attribution", () => {
+  it("links to the answer-book explanation and keeps the footer minimal", () => {
     expect(source).toContain('href="/about"');
     expect(source).toContain("什么是答案之书");
     expect(source).toContain('href="/history"');
     expect(source).toContain("翻签记录");
     expect(source).not.toContain("CC BY 4.0");
     expect(source).not.toContain("内容来自");
+  });
+
+  it("keeps the minimal CC BY attribution on the about and share cards", () => {
+    const about = readFileSync(new URL("../pages/About.tsx", import.meta.url), "utf8");
+    const share = readFileSync(new URL("../components/ShareCard.tsx", import.meta.url), "utf8");
+    for (const text of [about, share]) {
+      expect(text).toContain("内容来自《高性价比人生指南》");
+      expect(text).toContain("CC BY 4.0");
+    }
+    expect(about).toContain("不是官方版本");
+    expect(about).toContain("有修改");
   });
 });
