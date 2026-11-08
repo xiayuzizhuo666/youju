@@ -29,6 +29,8 @@ const generic = entry("6-18", 6, "不要靠通用体检套餐防病");
 const gallstone = entry("6-20", 6, "不要因为体检查出胆囊结石、但从没疼过，就去预防性切胆囊");
 const care = entry("24-5", 24, "每次看完病，把病历、检查报告和影像自己存一份");
 const kidneyStone = entry("16-8", 16, "得过肾结石就把水喝到每天 2.5–3 升");
+const tumorScreen = entry("6-7", 6, "不要给没有症状的自己做「全身 PET-CT」或「肿瘤标志物套餐」");
+const tumorInsurance = entry("16-2", 16, "先办门诊慢特病认定再办异地备案，放化疗、透析、抗排异就能异地直接结算");
 
 describe("health relevance", () => {
   it("detects health questions without treating unrelated questions as health", () => {
@@ -46,12 +48,30 @@ describe("health relevance", () => {
     expect(candidates.map((item) => item.id)).toContain("6-20");
   });
 
+  it("adds care entries even when another section-24 entry is already present", () => {
+    const otherCare = entry("24-1", 24, "常见病先在社区看，经基层逐级转诊上去");
+    const candidates = healthSupportCandidates("体检报告说可能是肿瘤", [otherCare], [otherCare, care, tumorScreen]);
+    expect(candidates.map((item) => item.id)).toContain("24-5");
+  });
+
   it("prefers a care-navigation entry when no candidate mentions the specific condition", () => {
     expect(preferHealthEntry("体检发现结节要不要手术？", generic, [generic, care]).id).toBe("24-5");
   });
 
   it("keeps a candidate that directly mentions the condition", () => {
     expect(preferHealthEntry("胆囊结石要不要切胆囊？", generic, [generic, gallstone]).id).toBe("6-20");
+  });
+
+  it("prefers care navigation for a possible diagnosis over a screening reminder", () => {
+    expect(preferHealthEntry("体检报告说可能是肿瘤", tumorScreen, [tumorScreen, care]).id).toBe("24-5");
+  });
+
+  it("does not keep an insurance procedure that only mentions the condition in its body", () => {
+    expect(preferHealthEntry("体检报告说可能是肿瘤", tumorInsurance, [tumorInsurance, care]).id).toBe("24-5");
+  });
+
+  it("keeps a screening entry when the question itself is about screening", () => {
+    expect(preferHealthEntry("体检套餐要不要做", tumorScreen, [tumorScreen, care]).id).toBe("6-7");
   });
 
   it("prefers the organ-specific candidate over a same-token distractor", () => {

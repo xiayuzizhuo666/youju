@@ -89,6 +89,8 @@ export interface SignTokenPayload {
   exp: number;
   /** True when the sign came from a local fallback rather than the model. */
   d?: boolean;
+  /** Short model-organized answer, guarded to stay non-numeric and non-verdict. */
+  s?: string;
 }
 
 export interface AskResponse {
@@ -101,6 +103,8 @@ export interface AskResponse {
   nearest_sections?: { no: number; title: string }[];
   /** True when the answer came from a generation-layer fallback, not the model. */
   degraded?: boolean;
+  /** Short model-organized answer, guarded to stay non-numeric and non-verdict. */
+  summary?: string;
   disclaimer: string;
 }
 
@@ -110,6 +114,8 @@ export interface SignResponse {
   sign: SignPayload;
   /** True when the sign was produced by the local book-order fallback. */
   degraded?: boolean;
+  /** Short model-organized answer, guarded to stay non-numeric and non-verdict. */
+  summary?: string;
   disclaimer: string;
 }
 

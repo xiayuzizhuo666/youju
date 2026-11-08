@@ -84,16 +84,18 @@ function compactToken(payload: SignTokenPayload | null): SignTokenPayload | null
     c: payload.c.slice(0, MAX_TOKEN_CANDIDATES),
     exp: payload.exp,
     ...(payload.d === true ? { d: true } : {}),
+    ...(typeof payload.s === "string" && payload.s.trim() ? { s: payload.s.slice(0, 80) } : {}),
   };
 }
 
-function tokenFor(question: string, id: string, candidates: string[], now: number, degraded = false): SignTokenPayload {
+function tokenFor(question: string, id: string, candidates: string[], now: number, degraded = false, summary?: string): SignTokenPayload {
   return {
     q: question,
     id,
     c: [...new Set([id, ...candidates])].slice(0, MAX_TOKEN_CANDIDATES),
     exp: now + TOKEN_TTL_MS,
     ...(degraded ? { d: true } : {}),
+    ...(summary ? { s: summary.slice(0, 80) } : {}),
   };
 }
 
@@ -107,7 +109,7 @@ const CACHE_TTL_MS = 30 * 60_000;
 const CACHE_MAX = 100;
 
 export function createHandler(deps: HandlerDeps) {
-  const askCache = createCache<{ sign: SignPayload; candidates: string[] }>({ ttlMs: CACHE_TTL_MS, max: CACHE_MAX, now: deps.now });
+  const askCache = createCache<{ sign: SignPayload; candidates: string[]; summary?: string }>({ ttlMs: CACHE_TTL_MS, max: CACHE_MAX, now: deps.now });
   const expandCache = createCache<ExpandPayload>({ ttlMs: CACHE_TTL_MS, max: CACHE_MAX, now: deps.now });
 
   async function fallbackResponse(question: string, sign: SignPayload, candidateIds: string[] = []): Promise<Response> {
@@ -196,6 +198,7 @@ export function createHandler(deps: HandlerDeps) {
           question: payload.q,
           sign: signFromEntry(entry),
           degraded: payload.d === true,
+          summary: payload.s,
           disclaimer: DISCLAIMER,
         };
         return json(response);
@@ -220,7 +223,7 @@ export function createHandler(deps: HandlerDeps) {
         const cachedResult = askCache.get(askKey);
         if (cachedResult) {
           const candidateIds = [...new Set([cachedResult.sign.entry_id, ...cachedResult.candidates])];
-          const token = await signToken(tokenFor(question, cachedResult.sign.entry_id, candidateIds, deps.now()), deps.env.APP_HMAC_SECRET);
+          const token = await signToken(tokenFor(question, cachedResult.sign.entry_id, candidateIds, deps.now(), false, cachedResult.summary), deps.env.APP_HMAC_SECRET);
           return json({
             ok: true,
             mode: "sign",
@@ -228,6 +231,7 @@ export function createHandler(deps: HandlerDeps) {
             sign: cachedResult.sign,
             signToken: token,
             degraded: false,
+            summary: cachedResult.summary,
             disclaimer: DISCLAIMER,
           } satisfies AskResponse);
         }
@@ -262,10 +266,19 @@ export function createHandler(deps: HandlerDeps) {
         }
 
         const candidateIds = [...new Set([result.sign.entry_id, ...result.candidates])];
-        if (!result.degraded) askCache.set(askKey, { sign: result.sign, candidates: candidateIds });
-        const payload = tokenFor(question, result.sign.entry_id, candidateIds, deps.now(), result.degraded);
+        if (!result.degraded) askCache.set(askKey, { sign: result.sign, candidates: candidateIds, summary: result.summary });
+        const payload = tokenFor(question, result.sign.entry_id, candidateIds, deps.now(), result.degraded, result.summary);
         const token = await signToken(payload, deps.env.APP_HMAC_SECRET);
-        const response: AskResponse = { ok: true, mode: "sign", question, sign: result.sign, signToken: token, degraded: result.degraded, disclaimer: DISCLAIMER };
+        const response: AskResponse = {
+          ok: true,
+          mode: "sign",
+          question,
+          sign: result.sign,
+          signToken: token,
+          degraded: result.degraded,
+          summary: result.summary,
+          disclaimer: DISCLAIMER,
+        };
         return json(response);
       }
 

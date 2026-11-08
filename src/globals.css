@@ -102,6 +102,9 @@ button { font-family: inherit; }
   box-shadow: 0 1px 0 var(--rule);
 }
 .sign-question { color: var(--ink-muted); font-size: 14px; margin: 0 0 18px; }
+.sign-summary { border-left: 2px solid var(--vermilion); padding-left: 12px; margin: 0 0 18px; }
+.sign-summary-label { color: var(--vermilion); font-size: 12px; letter-spacing: .16em; margin: 0 0 4px; }
+.sign-summary-text { color: var(--ink-soft); font-size: 18px; line-height: 1.6; margin: 0; }
 .sign-text { font-size: clamp(26px, 5vw, 38px); line-height: 1.35; font-weight: 600; margin: 0 0 24px; }
 .cost-rows { display: grid; gap: 6px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 12px 0; margin: 0 0 18px; }
 .cost-rows div { display: grid; grid-template-columns: 64px 1fr; gap: 8px; }
@@ -156,6 +159,7 @@ button { font-family: inherit; }
 }
 .share-card .cost-rows { font-size: 28px; }
 .share-card .sign-plain { font-size: 30px; }
+.share-card .sign-summary-text { font-size: 28px; }
 .share-card .citation { font-size: 24px; }
 .share-card .share-note { font-size: 24px; }
 .share-note { color: var(--ink-muted); font-size: 20px; margin-top: auto; }

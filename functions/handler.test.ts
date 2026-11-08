@@ -135,6 +135,25 @@ describe("handler", () => {
     expect(body.expand.degraded).toBe(true);
   });
 
+  it("carries a guarded summary through ask, token, and sign hydration", async () => {
+    const summaryChat: ChatFn = async (messages) => {
+      const system = messages[0].content;
+      if (system.includes("章节路由")) return JSON.stringify({ sections: [15], confidence: 0.9 });
+      if (system.includes("翻书人")) return JSON.stringify({
+        mode: "sign",
+        summary: "先看合同里的押金条款",
+        sign: { entry_id: "15-1", text: "先看合同里的押金条款" },
+        candidates: ["15-1"],
+      });
+      return JSON.stringify({ actions: [], avoid: [], not_covered: "", refer: "", recheck: "" });
+    };
+    const handler = makeHandler(summaryChat);
+    const ask = await handler(request({ action: "ask", question: "房东不退押金怎么办" })).then((res) => res.json());
+    expect(ask.summary).toBe("先看合同里的押金条款");
+    const hydrated = await handler(request({ action: "sign", token: ask.signToken })).then((res) => res.json());
+    expect(hydrated.summary).toBe("先看合同里的押金条款");
+  });
+
   it("serves a repeated question from the local cache without another model call", async () => {
     let calls = 0;
     const counting: ChatFn = async (messages) => {

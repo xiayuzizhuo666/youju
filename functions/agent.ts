@@ -77,6 +77,7 @@ export async function handleAgent(body: Record<string, unknown>, deps: HandlerDe
       result: {
         mode: "sign",
         sign: selected.sign,
+        summary: selected.summary,
         degraded: selected.degraded === true || expand.degraded === true,
         expand,
         disclaimer: DISCLAIMER,

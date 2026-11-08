@@ -14,6 +14,7 @@ interface SignState {
   sign: SignPayload;
   question: string;
   degraded: boolean;
+  summary?: string;
 }
 
 export function SignPage({ token }: { token: string }) {
@@ -35,7 +36,7 @@ export function SignPage({ token }: { token: string }) {
     fetchSign(token)
       .then((result) => {
         if (!alive) return;
-        setState({ sign: result.sign, question: result.question, degraded: result.degraded === true });
+        setState({ sign: result.sign, question: result.question, degraded: result.degraded === true, summary: result.summary });
         if (recordedToken.current !== token) {
           recordedToken.current = token;
           history.record(result.question, result.sign, Date.now(), token);
@@ -95,7 +96,7 @@ export function SignPage({ token }: { token: string }) {
   return (
     <main className="book-page">
       <BookFlip>
-        <SignCard sign={state.sign} question={state.question} />
+        <SignCard sign={state.sign} question={state.question} summary={state.summary} />
       </BookFlip>
       {state.degraded ? (
         <p className="degraded-note" role="status">模型这次没接上，这张签是按书里的排序兜底的。</p>
@@ -108,7 +109,7 @@ export function SignPage({ token }: { token: string }) {
       </div>
       {shareError ? <p className="share-error" role="alert">{shareError}</p> : null}
       <p className="sign-disclaimer">通用口径，不替代医生、律师、会计。</p>
-      <ShareCard ref={shareRef} sign={state.sign} question={state.question} />
+      <ShareCard ref={shareRef} sign={state.sign} question={state.question} summary={state.summary} />
     </main>
   );
 }

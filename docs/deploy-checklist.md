@@ -5,7 +5,7 @@
 ## 0. 当前状态（本地已完成）
 
 - [x] `npm run build` 通过（Vite 产物在 `dist/`，只有一个大于 500 kB 的 chunk 警告）。
-- [x] `npm test` 通过：21 个测试文件、148 个测试。
+- [x] `npm test` 通过：21 个测试文件、155 个测试。
 - [x] 封面 `docs/cover.html` 已生成，并截图到 `public/cover.png`：1920×1080、PNG、316,961 字节（约 0.30 MiB）、16:9、小于 5MB，中文逐字核对正确。
 - [x] 投稿说明 `docs/submission.md`、演示脚本 `docs/demo-script.md` 已就绪。
 - [x] 公开 URL：`https://render.qmuse.pub/p/muse/6495219290401338/index.html`（QMuse 前端；Qoder 后端继续提供模型与 Agent API）。

@@ -130,7 +130,7 @@ Agent 轨道与网页共用同一套检索、守卫和生成逻辑，入口是 Q
 
 **提交前必须完成有 key 的重跑**：`DEEPSEEK_API_KEY=... npm run eval`，用新结果替换本节表格和 `docs/eval-results.md` / `docs/eval-review.csv`，并按新的 20 条抽样重新做人工复核。eval 会对每个签名行再调用一次 expand；有 key 时约 55 次路由 + 55 次选签 + 55 次展开。若需要成本估算，再注入 `EVAL_INPUT_PRICE_PER_M` / `EVAL_OUTPUT_PRICE_PER_M`（元/百万 token）。在有 key 结果出来之前，所有对外材料只引用“降级基线”这个事实，不引用模型门槛。
 
-工程侧现状：`npm run build` 通过；`npm test` 21 个测试文件、148 个测试全部通过；签名 token（紧凑、服务端校验）、限流、分流、引用守卫、本机历史、结果缓存和 Agent API 都有覆盖；评测脚本可重复运行并生成含展开列、守卫泄漏列的 CSV 审计表。
+工程侧现状：`npm run build` 通过；`npm test` 21 个测试文件、155 个测试全部通过；签名 token（紧凑、服务端校验）、限流、分流、引用守卫、本机历史、结果缓存和 Agent API 都有覆盖；评测脚本可重复运行并生成含展开列、守卫泄漏列的 CSV 审计表。
 
 ## 生态适配
 

@@ -47,6 +47,28 @@ describe("generate", () => {
     expect(result.sign?.entry_id).toBe("15-1");
   });
 
+  it("carries a short guarded summary from the sign call", async () => {
+    const summaryChat: ChatFn = async () => JSON.stringify({
+      mode: "sign",
+      summary: "先看检查报告的分级，再找专科医生",
+      sign: { entry_id: "15-1", text: "房东不退押金" },
+      candidates: ["15-1"],
+    });
+    const result = await selectSign(summaryChat, "房东不退押金", [entry]);
+    expect(result.summary).toBe("先看检查报告的分级，再找专科医生");
+  });
+
+  it("drops numeric or absolute summaries", async () => {
+    const make = (summary: string): ChatFn => async () => JSON.stringify({
+      mode: "sign",
+      summary,
+      sign: { entry_id: "15-1", text: "房东不退押金" },
+      candidates: ["15-1"],
+    });
+    await expect(selectSign(make("先准备 5000 元"), "房东不退押金", [entry])).resolves.toMatchObject({ summary: undefined });
+    await expect(selectSign(make("一定能拿回押金"), "房东不退押金", [entry])).resolves.toMatchObject({ summary: undefined });
+  });
+
   it("filters invalid expand actions", async () => {
     const badChat: ChatFn = async () => JSON.stringify({
       actions: [{ entry_id: "99-9", action: "编的", cost: "", benefit: "", evidence: "A" }],

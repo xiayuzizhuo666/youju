@@ -16,6 +16,9 @@ const HEALTH_SPECIFIC =
   /结节|肿瘤|癌|结石|囊肿|息肉|骨折|糖尿病|高血压|血压|血糖|血脂|尿酸|甲状腺|乳腺|胆囊|胰腺|前列腺|子宫|卵巢|肺|肝|肾|胃|肠|心脏|脑|膝盖|关节|手术|化疗|放疗|穿刺|活检|靶向|骨质疏松|乙肝|丙肝|艾滋|幽门|贫血|失眠|抑郁|焦虑/;
 const HEALTH_GENERAL = /体检|复查|检查报告|报告|专科|医生|医院|门诊|住院|吃药|用药/;
 const HEALTH_SUPPORT_IDS = ["24-5", "24-6", "24-3", "24-1"];
+const CARE_INTENT = /可能|确诊|查出|发现|报告|结果|怎么办|要不要|该不该|严重|治疗|手术|复查|症状|疼/;
+const SCREEN_QUESTION = /体检套餐|筛查|PET|CT|标志物|检查套餐/;
+const GENERIC_SCREEN = /通用体检|体检套餐|肿瘤标志物|全身.*(?:PET|CT)|筛查套餐/;
 
 function entryText(entry: BookEntry): string {
   return `${entry.title}${entry.plain}${entry.notes}`;
@@ -38,10 +41,10 @@ export function healthSupportCandidates(question: string, candidates: BookEntry[
     ...candidates,
     ...direct.filter((entry) => !candidates.some((candidate) => candidate.id === entry.id)),
   ];
-  if (merged.some((entry) => entry.section_no === 24)) return merged;
   const support = HEALTH_SUPPORT_IDS
     .map((id) => all.find((entry) => entry.id === id))
-    .filter((entry): entry is BookEntry => Boolean(entry));
+    .filter((entry): entry is BookEntry => Boolean(entry))
+    .filter((entry) => !merged.some((candidate) => candidate.id === entry.id));
   return [...merged, ...support];
 }
 
@@ -52,14 +55,21 @@ export function healthSupportCandidates(question: string, candidates: BookEntry[
  */
 export function preferHealthEntry(question: string, chosen: BookEntry, candidates: BookEntry[]): BookEntry {
   if (!isHealthQuestion(question)) return chosen;
+  const care = HEALTH_SUPPORT_IDS
+    .map((id) => candidates.find((entry) => entry.id === id))
+    .find((entry): entry is BookEntry => Boolean(entry));
   const terms = [...new Set(question.match(HEALTH_SPECIFIC) ?? [])];
+  const titleMatch = terms.some((term) => chosen.title.includes(term));
+  // A "可能是肿瘤/查出结节" question needs a care path, not an insurance
+  // procedure or a generic "don't buy a screening package" reminder.
+  if (CARE_INTENT.test(question) && !SCREEN_QUESTION.test(question) && care) {
+    if (!titleMatch || GENERIC_SCREEN.test(entryText(chosen))) return care;
+  }
   if (terms.length === 0) return chosen;
   const score = (entry: BookEntry) => terms.filter((term) => entryText(entry).includes(term)).length;
   const best = candidates.reduce((current, entry) => score(entry) > score(current) ? entry : current, chosen);
   if (score(best) > 0) return score(chosen) >= score(best) ? chosen : best;
-  return HEALTH_SUPPORT_IDS
-    .map((id) => candidates.find((entry) => entry.id === id))
-    .find((entry): entry is BookEntry => Boolean(entry)) ?? chosen;
+  return care ?? chosen;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -189,7 +199,7 @@ export async function selectSign(chat: ChatFn, question: string, candidates: Boo
   const byId = new Map(candidates.map((entry) => [entry.id, entry]));
   const fallback = candidates[0];
   const fallbackIds = candidates.slice(0, 8).map((entry) => entry.id);
-  if (!fallback) return { mode: "no_match" as const, candidates: [], degraded: false };
+  if (!fallback) return { mode: "no_match" as const, candidates: [], degraded: false, summary: undefined };
   try {
     const raw = await chat([
       { role: "system", content: SIGN_SYSTEM },
@@ -199,7 +209,7 @@ export async function selectSign(chat: ChatFn, question: string, candidates: Boo
     if (!isRecord(parsed)) throw new Error("invalid sign");
     const mode = parsed.mode === "no_match" ? "no_match" : parsed.mode === "sign" ? "sign" : null;
     if (!mode) throw new Error("invalid sign mode");
-    if (mode === "no_match") return { mode: "no_match" as const, candidates: [], degraded: false };
+    if (mode === "no_match") return { mode: "no_match" as const, candidates: [], degraded: false, summary: undefined };
     const signObj = isRecord(parsed.sign) ? parsed.sign : null;
     const entryId = signObj ? asString(signObj.entry_id) : "";
     const modelText = signObj ? asString(signObj.text, 48).trim() : "";
@@ -208,19 +218,29 @@ export async function selectSign(chat: ChatFn, question: string, candidates: Boo
     if (!chosen) {
       // Never pair model prose with a different entry's citation: an unknown
       // id discards the text and degrades to the top candidate's own sign.
-      return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true };
+      return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true, summary: undefined };
     }
     const preferred = preferHealthEntry(question, chosen, candidates);
     const sign = signFromEntry(preferred, preferred.id === chosen.id ? modelText : undefined);
     if (unsupportedClaims(sign.text, [preferred]).length > 0) {
-      return { mode: "sign" as const, sign: signFromEntry(preferred), candidates: fallbackIds, degraded: true };
+      return { mode: "sign" as const, sign: signFromEntry(preferred), candidates: fallbackIds, degraded: true, summary: undefined };
     }
+    const rawSummary = asString(parsed.summary, 80).trim();
+    const summary = rawSummary && !/\d/.test(rawSummary) && passesTextGuards(rawSummary) ? rawSummary : undefined;
     const candidateIds = asStringArray(parsed.candidates, 8).filter((id) => byId.has(id));
     if (!candidateIds.includes(preferred.id)) candidateIds.unshift(preferred.id);
-    return { mode: "sign" as const, sign, candidates: candidateIds, degraded: false };
+    return {
+      mode: "sign" as const,
+      sign,
+      candidates: candidateIds,
+      degraded: false,
+      // A care-navigation override changes the subject; keep the summary only
+      // when it was generated for the entry that is actually shown.
+      summary: preferred.id === chosen.id ? summary : undefined,
+    };
   } catch (error) {
     console.warn("generate_sign_failed", error instanceof Error ? error.message : error);
-    return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true };
+    return { mode: "sign" as const, sign: signFromEntry(fallback), candidates: fallbackIds, degraded: true, summary: undefined };
   }
 }
 

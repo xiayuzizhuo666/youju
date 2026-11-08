@@ -2,13 +2,13 @@ import { forwardRef } from "react";
 import type { SignPayload } from "../shared/types";
 import { SignCard } from "./SignCard";
 
-export const ShareCard = forwardRef<HTMLDivElement, { sign: SignPayload; question: string }>(
-  function ShareCard({ sign, question }, ref) {
+export const ShareCard = forwardRef<HTMLDivElement, { sign: SignPayload; question: string; summary?: string }>(
+  function ShareCard({ sign, question, summary }, ref) {
     return (
       <div className="share-card-stage" aria-hidden="true">
         <div ref={ref} className="share-card">
           <p className="share-brand">有据</p>
-          <SignCard sign={sign} question={question} compact />
+          <SignCard sign={sign} question={question} summary={summary} compact />
           <div className="share-footer">
             <div className="share-credit">
               <p className="share-note">内容来自《高性价比人生指南》，CC BY 4.0，有修改</p>
