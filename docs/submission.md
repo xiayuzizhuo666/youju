@@ -4,7 +4,7 @@
 - 团队：solo（1 人）
 - 作品名：有据
 - 一句话形态：Web 智能体 + 可调用 Agent API
-- 作品 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）
+- 作品 URL：`https://render.qmuse.pub/p/muse/6495219290401338/index.html`（QMuse 前端，已发布；模型与 Agent API 在 Qoder 后端）
 - 封面：`public/cover.png`，1920×1080，16:9，小于 5MB
 - 演示脚本：`docs/demo-script.md`；演示视频由 owner 录制（60–90 秒，1080p MP4，小于 500MB，放在 `docs/`，不放进 `public/`）
 - 内容版本：2026-11-06 同步
@@ -73,7 +73,7 @@
 
 ## Agent API 契约
 
-Agent 轨道与网页共用同一套检索、守卫和生成逻辑，入口是 `POST /functions/v1/app`：
+Agent 轨道与网页共用同一套检索、守卫和生成逻辑，入口是 Qoder 后端的 `POST https://youju-krtzz7phy1t.qoder.zone/functions/v1/app`；QMuse 前端通过云函数代理调用同一入口：
 
 ```json
 {"action":"agent","tool":"ask_life_question","input":{"question":"房东不退押金怎么办"}}
@@ -158,7 +158,7 @@ Agent 轨道与网页共用同一套检索、守卫和生成逻辑，入口是 `
 
 ## 投稿材料清单
 
-- [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）
+- [x] 公开 URL：`https://render.qmuse.pub/p/muse/6495219290401338/index.html`（QMuse 前端；Qoder 后端继续提供模型与 Agent API）
 - [x] 封面：`public/cover.png`（1920×1080，16:9）
 - [x] 作品说明：本文件
 - [x] 演示脚本：`docs/demo-script.md`

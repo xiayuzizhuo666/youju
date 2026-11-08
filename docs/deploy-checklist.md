@@ -8,7 +8,7 @@
 - [x] `npm test` 通过：21 个测试文件、148 个测试。
 - [x] 封面 `docs/cover.html` 已生成，并截图到 `public/cover.png`：1920×1080、PNG、316,961 字节（约 0.30 MiB）、16:9、小于 5MB，中文逐字核对正确。
 - [x] 投稿说明 `docs/submission.md`、演示脚本 `docs/demo-script.md` 已就绪。
-- [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`（已发布，公开访问）。
+- [x] 公开 URL：`https://render.qmuse.pub/p/muse/6495219290401338/index.html`（QMuse 前端；Qoder 后端继续提供模型与 Agent API）。
 - [ ] 有 key 评测结果：当前只有 no-key/degraded baseline，提交前必须替换。
 
 ## 1. 环境
@@ -147,7 +147,7 @@ ComSpec='C:\Windows\System32\cmd.exe' DEEPSEEK_API_KEY='<owner-key>' npm run eva
 
 需要提交：
 
-- [x] 公开 URL：`https://youju-krtzz7phy1t.qoder.zone`
+- [x] 公开 URL：`https://render.qmuse.pub/p/muse/6495219290401338/index.html`
 - [ ] 封面：`public/cover.png`（1920×1080，16:9，< 5MB，自有封面）
 - [ ] 作品说明：`docs/submission.md` 的内容
 - [ ] 可选演示视频：按 `docs/demo-script.md` 录制，60–90 秒、1080p、MP4、< 500MB，放在 `docs/`，不要放进 `public/`
